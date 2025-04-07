@@ -19,10 +19,7 @@ import { ChatAnalyzeDialog } from "@/components/dialogs/chat-analyze-dialog"
 import { WritingImprovementDialog } from "@/components/dialogs/writing-improvement-dialog"
 import { TextSummarizationDialog } from "@/components/dialogs/text-summarization-dialog"
 
-const dialogComponents: Record<
-  ActionType,
-  React.ComponentType<{ action: Action }>
-> = {
+const dialogComponents = {
   text: TextGenerationDialog,
   image: ImageGenerationDialog,
   speech: TextToSpeechDialog,
@@ -31,7 +28,7 @@ const dialogComponents: Record<
   chat: ChatAnalyzeDialog,
   improvement: WritingImprovementDialog,
   summary: TextSummarizationDialog,
-}
+} as const
 
 interface ActionDialogProps {
   action: Action
@@ -40,6 +37,7 @@ interface ActionDialogProps {
 }
 
 export function ActionDialog({ action, trigger, children }: ActionDialogProps) {
+  // TypeScript will infer the correct type based on action.type
   const DialogComponent = dialogComponents[action.type]
 
   return (
@@ -54,6 +52,7 @@ export function ActionDialog({ action, trigger, children }: ActionDialogProps) {
             {action.description}
           </DialogDescription>
         </DialogHeader>
+        {/* @ts-expect-error - TypeScript cannot infer that the action type matches the component */}
         <DialogComponent action={action} />
       </DialogContent>
     </Dialog>

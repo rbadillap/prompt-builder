@@ -23,8 +23,10 @@ const formSchema = z.object({
   prompt: z.string().min(10, {
     message: "Prompt must be at least 10 characters.",
   }),
-  temperature: z.number().min(0).max(2).default(0.7),
+  temperature: z.number().min(0).max(2),
 })
+
+type FormValues = z.infer<typeof formSchema>
 
 interface TextGenerationDialogProps {
   action: TextGenerationAction
@@ -33,15 +35,15 @@ interface TextGenerationDialogProps {
 export function TextGenerationDialog({ action }: TextGenerationDialogProps) {
   const [isLoading, setIsLoading] = React.useState(false)
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       prompt: "",
-      temperature: 0.7,
+      temperature: action.temperature ?? 0.7,
     },
   })
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: FormValues) {
     try {
       setIsLoading(true)
       console.log("Submitting text generation:", values)
