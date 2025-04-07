@@ -34,9 +34,6 @@ import {
   ChevronRight,
 } from "lucide-react"
 
-import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
-import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
 import {
   Sidebar,
@@ -362,7 +359,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {activeItem?.title}
             </div>
             {/* <Label className="flex items-center gap-2 text-sm">
-              <span>Unreads</span>
+              <span>Developer Mode</span>
               <Switch className="shadow-none" />
             </Label> */}
           </div>
