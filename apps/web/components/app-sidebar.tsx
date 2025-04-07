@@ -29,6 +29,9 @@ import {
   Share2,
   BotOffIcon,
   Workflow,
+  ArrowRight,
+  ArrowRightFromLine,
+  ChevronRight,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -50,6 +53,8 @@ import {
 } from "@workspace/ui/components/sidebar"
 import { Label } from "@workspace/ui/components/label"
 import { Switch } from "@workspace/ui/components/switch"
+import { ActionDialog } from "@/components/action-dialog"
+import { Action } from "@/types/actions"
 
 const data = {
   user: {
@@ -175,62 +180,103 @@ const data = {
   ],
   actions: [
     {
+      id: "text-generation",
+      type: "text",
       title: "Generate Text",
       description: "Generate text based on your input",
       icon: TextQuoteIcon,
-      shortcut: "N",
       tags: ["create", "assistant"],
+      provider: "openai",
+      maxLength: 4000,
+      temperature: 0.7
     },
     {
+      id: "image-generation",
+      type: "image",
       title: "Generate Images",
       description: "Create images by describing what you want to see",
       icon: ImageIcon,
-      shortcut: "I",
       tags: ["images", "art"],
+      provider: "stability",
+      sizes: [
+        { width: 512, height: 512, label: "Square" },
+        { width: 768, height: 512, label: "Landscape" },
+        { width: 512, height: 768, label: "Portrait" }
+      ]
     },
     {
+      id: "text-to-speech",
+      type: "speech",
       title: "Text to Speech",
       description: "Convert your text into natural-sounding speech",
       icon: MusicIcon,
-      shortcut: "S",
       tags: ["audio", "voice"],
+      provider: "google",
+      voices: [
+        { id: "en-US-1", name: "English US Female" },
+        { id: "en-US-2", name: "English US Male" }
+      ]
     },
     {
+      id: "translate",
+      type: "translation",
       title: "Translate Languages",
       description: "Translate text between any languages naturally",
       icon: LandPlot,
-      shortcut: "T",
       tags: ["translate", "language"],
+      provider: "google",
+      supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "zh", "ja", "ko"]
     },
     {
+      id: "content-writing",
+      type: "content",
       title: "Write Content",
       description: "Get help writing articles, emails, or any type of content",
       icon: FileText,
-      shortcut: "W",
       tags: ["write", "content"],
+      provider: "anthropic",
+      templates: [
+        { id: "blog", name: "Blog Post", description: "Write a blog post" },
+        { id: "email", name: "Email", description: "Write a professional email" }
+      ]
     },
     {
+      id: "chat-analyze",
+      type: "chat",
       title: "Chat & Analyze",
       description: "Have conversations and get insights from your data",
       icon: MessageSquarePlus,
-      shortcut: "C",
       tags: ["chat", "analyze"],
+      provider: "openai",
+      features: [
+        { id: "chat", name: "Chat", description: "Have a conversation" },
+        { id: "analyze", name: "Analyze", description: "Analyze data" }
+      ]
     },
     {
+      id: "improve-writing",
+      type: "improvement",
       title: "Improve Writing",
       description: "Make your text more clear, engaging, and professional",
       icon: Sparkles,
-      shortcut: "E",
       tags: ["improve", "edit"],
+      provider: "anthropic",
+      modes: [
+        { id: "clarity", name: "Clarity", description: "Improve clarity" },
+        { id: "tone", name: "Tone", description: "Adjust tone" }
+      ]
     },
     {
+      id: "summarize",
+      type: "summary",
       title: "Summarize Text",
       description: "Get the key points from any text quickly",
       icon: TextQuoteIcon,
-      shortcut: "R",
       tags: ["summary", "extract"],
+      provider: "anthropic",
+      maxLength: 1000
     }
-  ],
+  ] as Action[],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -326,24 +372,25 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarGroup className="px-0">
             <SidebarGroupContent>
               {actions.map((action) => (
-                <a
-                  href="#"
-                  key={action.title}
-                  className="group relative flex flex-col items-start gap-2.5 border-b p-4 text-sm transition-colors duration-150 last:border-b-0 hover:bg-muted/40"
-                >
-                  <div className="flex w-full items-center gap-3">
-                    <div className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors group-hover:text-foreground">
-                      <action.icon className="size-4" />
+                <ActionDialog key={action.id} action={action}>
+                  <a
+                    href="#"
+                    className="group relative flex flex-col items-start gap-2.5 border-b p-4 text-sm transition-colors duration-150 last:border-b-0 hover:bg-muted/40"
+                  >
+                    <div className="flex w-full items-center gap-3">
+                      <div className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors group-hover:text-foreground">
+                        <action.icon className="size-4" />
+                      </div>
+                      <span className="font-medium tracking-tight">{action.title}</span>
                     </div>
-                    <span className="font-medium tracking-tight">{action.title}</span>
-                  </div>
-                  <span className="line-clamp-2 w-[260px] whitespace-break-spaces text-xs text-muted-foreground">
-                    {action.description}
-                  </span>
-                  <kbd className="pointer-events-none absolute right-4 top-1/2 hidden -translate-y-1/2 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-50 group-hover:flex">
-                    <Command className="size-3" /> {action.shortcut}
-                  </kbd>
-                </a>
+                    <span className="line-clamp-2 w-[260px] whitespace-break-spaces text-xs text-muted-foreground">
+                      {action.description}
+                    </span>
+                    <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground group-hover:text-foreground transition-opacity group-hover:opacity-100">
+                      <ChevronRight className="size-4" />
+                    </div>
+                  </a>
+                </ActionDialog>
               ))}
             </SidebarGroupContent>
           </SidebarGroup>
