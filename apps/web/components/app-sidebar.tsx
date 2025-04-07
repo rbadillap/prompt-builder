@@ -5,18 +5,35 @@ import {
   BookOpen,
   Bot,
   Command,
+  FileText,
   Frame,
+  ImageIcon,
+  LandPlot,
   LifeBuoy,
   Map,
+  MusicIcon,
+  Pencil,
   PieChart,
   Send,
   Settings2,
   SquareTerminal,
+  TextQuoteIcon,
+  Zap,
+  Code2,
+  History,
+  GitFork,
+  Sparkles,
+  Variable,
+  Wand2,
+  MessageSquarePlus,
+  Share2,
+  BotOffIcon,
+  Workflow,
+  ArrowRight,
+  ArrowRightFromLine,
+  ChevronRight,
 } from "lucide-react"
 
-import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
-import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
 import {
   Sidebar,
@@ -33,6 +50,8 @@ import {
 } from "@workspace/ui/components/sidebar"
 import { Label } from "@workspace/ui/components/label"
 import { Switch } from "@workspace/ui/components/switch"
+import { ActionDialog } from "@/components/action-dialog"
+import { Action } from "@/types/actions"
 
 const data = {
   user: {
@@ -42,9 +61,9 @@ const data = {
   },
   navMain: [
     {
-      title: "Playground",
+      title: "Actions",
       url: "#",
-      icon: SquareTerminal,
+      icon: Zap,
       isActive: true,
       items: [
         {
@@ -156,96 +175,112 @@ const data = {
       icon: Map,
     },
   ],
-  mails: [
+  actions: [
     {
-      name: "William Smith",
-      email: "williamsmith@example.com",
-      subject: "Meeting Tomorrow",
-      date: "09:34 AM",
-      teaser:
-        "Hi team, just a reminder about our meeting tomorrow at 10 AM.\nPlease come prepared with your project updates.",
+      id: "text-generation",
+      type: "text",
+      title: "Generate Text",
+      description: "Generate text based on your input",
+      icon: TextQuoteIcon,
+      tags: ["create", "assistant"],
+      provider: "openai",
+      maxLength: 4000,
+      temperature: 0.7
     },
     {
-      name: "Alice Smith",
-      email: "alicesmith@example.com",
-      subject: "Re: Project Update",
-      date: "Yesterday",
-      teaser:
-        "Thanks for the update. The progress looks great so far.\nLet's schedule a call to discuss the next steps.",
+      id: "image-generation",
+      type: "image",
+      title: "Generate Images",
+      description: "Create images by describing what you want to see",
+      icon: ImageIcon,
+      tags: ["images", "art"],
+      provider: "stability",
+      sizes: [
+        { width: 512, height: 512, label: "Square" },
+        { width: 768, height: 512, label: "Landscape" },
+        { width: 512, height: 768, label: "Portrait" }
+      ]
     },
     {
-      name: "Bob Johnson",
-      email: "bobjohnson@example.com",
-      subject: "Weekend Plans",
-      date: "2 days ago",
-      teaser:
-        "Hey everyone! I'm thinking of organizing a team outing this weekend.\nWould you be interested in a hiking trip or a beach day?",
+      id: "text-to-speech",
+      type: "speech",
+      title: "Text to Speech",
+      description: "Convert your text into natural-sounding speech",
+      icon: MusicIcon,
+      tags: ["audio", "voice"],
+      provider: "google",
+      voices: [
+        { id: "en-US-1", name: "English US Female" },
+        { id: "en-US-2", name: "English US Male" }
+      ]
     },
     {
-      name: "Emily Davis",
-      email: "emilydavis@example.com",
-      subject: "Re: Question about Budget",
-      date: "2 days ago",
-      teaser:
-        "I've reviewed the budget numbers you sent over.\nCan we set up a quick call to discuss some potential adjustments?",
+      id: "translate",
+      type: "translation",
+      title: "Translate Languages",
+      description: "Translate text between any languages naturally",
+      icon: LandPlot,
+      tags: ["translate", "language"],
+      provider: "google",
+      supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "zh", "ja", "ko"]
     },
     {
-      name: "Michael Wilson",
-      email: "michaelwilson@example.com",
-      subject: "Important Announcement",
-      date: "1 week ago",
-      teaser:
-        "Please join us for an all-hands meeting this Friday at 3 PM.\nWe have some exciting news to share about the company's future.",
+      id: "content-writing",
+      type: "content",
+      title: "Write Content",
+      description: "Get help writing articles, emails, or any type of content",
+      icon: FileText,
+      tags: ["write", "content"],
+      provider: "anthropic",
+      templates: [
+        { id: "blog", name: "Blog Post", description: "Write a blog post" },
+        { id: "email", name: "Email", description: "Write a professional email" }
+      ]
     },
     {
-      name: "Sarah Brown",
-      email: "sarahbrown@example.com",
-      subject: "Re: Feedback on Proposal",
-      date: "1 week ago",
-      teaser:
-        "Thank you for sending over the proposal. I've reviewed it and have some thoughts.\nCould we schedule a meeting to discuss my feedback in detail?",
+      id: "chat-analyze",
+      type: "chat",
+      title: "Chat & Analyze",
+      description: "Have conversations and get insights from your data",
+      icon: MessageSquarePlus,
+      tags: ["chat", "analyze"],
+      provider: "openai",
+      features: [
+        { id: "chat", name: "Chat", description: "Have a conversation" },
+        { id: "analyze", name: "Analyze", description: "Analyze data" }
+      ]
     },
     {
-      name: "David Lee",
-      email: "davidlee@example.com",
-      subject: "New Project Idea",
-      date: "1 week ago",
-      teaser:
-        "I've been brainstorming and came up with an interesting project concept.\nDo you have time this week to discuss its potential impact and feasibility?",
+      id: "improve-writing",
+      type: "improvement",
+      title: "Improve Writing",
+      description: "Make your text more clear, engaging, and professional",
+      icon: Sparkles,
+      tags: ["improve", "edit"],
+      provider: "anthropic",
+      modes: [
+        { id: "clarity", name: "Clarity", description: "Improve clarity" },
+        { id: "tone", name: "Tone", description: "Adjust tone" }
+      ]
     },
     {
-      name: "Olivia Wilson",
-      email: "oliviawilson@example.com",
-      subject: "Vacation Plans",
-      date: "1 week ago",
-      teaser:
-        "Just a heads up that I'll be taking a two-week vacation next month.\nI'll make sure all my projects are up to date before I leave.",
-    },
-    {
-      name: "James Martin",
-      email: "jamesmartin@example.com",
-      subject: "Re: Conference Registration",
-      date: "1 week ago",
-      teaser:
-        "I've completed the registration for the upcoming tech conference.\nLet me know if you need any additional information from my end.",
-    },
-    {
-      name: "Sophia White",
-      email: "sophiawhite@example.com",
-      subject: "Team Dinner",
-      date: "1 week ago",
-      teaser:
-        "To celebrate our recent project success, I'd like to organize a team dinner.\nAre you available next Friday evening? Please let me know your preferences.",
-    },
-  ],
-
+      id: "summarize",
+      type: "summary",
+      title: "Summarize Text",
+      description: "Get the key points from any text quickly",
+      icon: TextQuoteIcon,
+      tags: ["summary", "extract"],
+      provider: "anthropic",
+      maxLength: 1000
+    }
+  ] as Action[],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // Note: I'm using state to show active item.
   // IRL you should use the url/router.
   const [activeItem, setActiveItem] = React.useState(data.navMain[0])
-  const [mails, setMails] = React.useState(data.mails)
+  const [actions, setActions] = React.useState(data.actions)
   const { setOpen } = useSidebar()
   return (
     <Sidebar
@@ -266,7 +301,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <SidebarMenuButton size="lg" asChild className="md:h-8 md:p-0">
                 <a href="#">
                   <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                    <Command className="size-4" />
+                    <Workflow className="size-4" />
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold">Acme Inc</span>
@@ -290,9 +325,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       }}
                       onClick={() => {
                         setActiveItem(item)
-                        const mail = data.mails.sort(() => Math.random() - 0.5)
-                        setMails(
-                          mail.slice(
+                        const action = data.actions.sort(() => Math.random() - 0.5)
+                        setActions(
+                          action.slice(
                             0,
                             Math.max(5, Math.floor(Math.random() * 10) + 1)
                           )
@@ -323,31 +358,36 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <div className="text-base font-medium text-foreground">
               {activeItem?.title}
             </div>
-            <Label className="flex items-center gap-2 text-sm">
-              <span>Unreads</span>
+            {/* <Label className="flex items-center gap-2 text-sm">
+              <span>Developer Mode</span>
               <Switch className="shadow-none" />
-            </Label>
+            </Label> */}
           </div>
-          <SidebarInput placeholder="Type to search..." />
+          <SidebarInput placeholder="What are you going to build?" />
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup className="px-0">
             <SidebarGroupContent>
-              {mails.map((mail) => (
-                <a
-                  href="#"
-                  key={mail.email}
-                  className="flex flex-col items-start gap-2 whitespace-nowrap border-b p-4 text-sm leading-tight last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                >
-                  <div className="flex w-full items-center gap-2">
-                    <span>{mail.name}</span>{" "}
-                    <span className="ml-auto text-xs">{mail.date}</span>
-                  </div>
-                  <span className="font-medium">{mail.subject}</span>
-                  <span className="line-clamp-2 w-[260px] whitespace-break-spaces text-xs">
-                    {mail.teaser}
-                  </span>
-                </a>
+              {actions.map((action) => (
+                <ActionDialog key={action.id} action={action}>
+                  <a
+                    href="#"
+                    className="group relative flex flex-col items-start gap-2.5 border-b p-4 text-sm transition-colors duration-150 last:border-b-0 hover:bg-muted/40"
+                  >
+                    <div className="flex w-full items-center gap-3">
+                      <div className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors group-hover:text-foreground">
+                        <action.icon className="size-4" />
+                      </div>
+                      <span className="font-medium tracking-tight">{action.title}</span>
+                    </div>
+                    <span className="line-clamp-2 w-[260px] whitespace-break-spaces text-xs text-muted-foreground">
+                      {action.description}
+                    </span>
+                    <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground group-hover:text-foreground transition-opacity group-hover:opacity-100">
+                      <ChevronRight className="size-4" />
+                    </div>
+                  </a>
+                </ActionDialog>
               ))}
             </SidebarGroupContent>
           </SidebarGroup>
