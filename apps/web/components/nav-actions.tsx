@@ -17,6 +17,13 @@ import {
   Star,
   Trash,
   Trash2,
+  Code2,
+  History,
+  GitFork,
+  Variable,
+  Wand2,
+  Bot,
+  MessageSquarePlus,
 } from "lucide-react"
 
 import { Button } from "@workspace/ui/components/button"
@@ -38,12 +45,30 @@ import {
 const data = [
   [
     {
-      label: "Customize Page",
-      icon: Settings2,
+      label: "System Prompt",
+      icon: Bot,
     },
     {
-      label: "Turn into wiki",
-      icon: FileText,
+      label: "Import Variables",
+      icon: Variable,
+    },
+    {
+      label: "Function Calls",
+      icon: Code2,
+    },
+  ],
+  [
+    {
+      label: "Version History",
+      icon: History,
+    },
+    {
+      label: "Fork Prompt",
+      icon: GitFork,
+    },
+    {
+      label: "Format & Lint",
+      icon: Wand2,
     },
   ],
   [
@@ -62,28 +87,6 @@ const data = [
     {
       label: "Move to Trash",
       icon: Trash2,
-    },
-  ],
-  [
-    {
-      label: "Undo",
-      icon: CornerUpLeft,
-    },
-    {
-      label: "View analytics",
-      icon: LineChart,
-    },
-    {
-      label: "Version History",
-      icon: GalleryVerticalEnd,
-    },
-    {
-      label: "Show delete pages",
-      icon: Trash,
-    },
-    {
-      label: "Notifications",
-      icon: Bell,
     },
   ],
   [
