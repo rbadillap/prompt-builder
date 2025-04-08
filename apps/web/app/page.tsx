@@ -1,5 +1,6 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import { NavActions } from "@/components/nav-actions"
+import { WorkflowBuilder } from "@/components/builder"
 
 import {
   Breadcrumb,
@@ -37,9 +38,7 @@ export default function Page() {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">
-                    Building Your AI
-                  </BreadcrumbLink>
+                  <BreadcrumbLink href="#">Building Your AI</BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem>
@@ -54,7 +53,9 @@ export default function Page() {
         </header>
         <div className="flex flex-1 flex-col gap-4 px-4 py-10">
           <div className="mx-auto h-24 w-full max-w-3xl rounded-xl bg-muted/50" />
-          <div className="mx-auto h-full w-full max-w-3xl rounded-xl bg-muted/50" />
+          <div className="mx-auto h-[calc(100vh-16rem)] w-full max-w-3xl rounded-xl bg-muted/50 overflow-hidden">
+            <WorkflowBuilder />
+          </div>
         </div>
       </SidebarInset>
     </SidebarProvider>

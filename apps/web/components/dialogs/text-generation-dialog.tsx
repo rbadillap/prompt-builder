@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { TextGenerationAction } from "@/types/actions"
 import { Button } from "@workspace/ui/components/button"
-import { DialogFooter } from "@workspace/ui/components/dialog"
+import { DialogFooter, DialogClose } from "@workspace/ui/components/dialog"
 import {
   Form,
   FormControl,
@@ -18,6 +18,8 @@ import {
 } from "@workspace/ui/components/form"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { Slider } from "@workspace/ui/components/slider"
+import { useBuilder } from "@/components/builder/context"
+import { Text, TextIcon } from "lucide-react"
 
 const formSchema = z.object({
   prompt: z.string().min(10, {
@@ -34,6 +36,8 @@ interface TextGenerationDialogProps {
 
 export function TextGenerationDialog({ action }: TextGenerationDialogProps) {
   const [isLoading, setIsLoading] = React.useState(false)
+  const { addNode } = useBuilder()
+  const closeRef = React.useRef<HTMLButtonElement>(null)
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -46,8 +50,21 @@ export function TextGenerationDialog({ action }: TextGenerationDialogProps) {
   async function onSubmit(values: FormValues) {
     try {
       setIsLoading(true)
-      console.log("Submitting text generation:", values)
-      // Here we'll handle the actual API call to the LLM provider
+      
+      // Add node to the builder
+      addNode({
+        type: 'text-generation',
+        label: 'Text Generation',
+        icon: TextIcon,
+        content: JSON.stringify({
+          prompt: values.prompt,
+          temperature: values.temperature,
+        }),
+      })
+
+      // Close the dialog using the ref
+      closeRef.current?.click()
+
     } catch (error) {
       console.error("Error generating text:", error)
     } finally {
@@ -101,8 +118,12 @@ export function TextGenerationDialog({ action }: TextGenerationDialogProps) {
           )}
         />
         <DialogFooter>
+          <DialogClose ref={closeRef} className="hidden" />
+          <Button variant="outline" type="button" onClick={() => closeRef.current?.click()}>
+            Cancel
+          </Button>
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Generating..." : "Generate"}
+            {isLoading ? "Adding..." : "Add"}
           </Button>
         </DialogFooter>
       </form>
