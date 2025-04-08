@@ -14,33 +14,51 @@ import ReactFlow, {
   ConnectionMode,
   useReactFlow,
 } from 'reactflow'
-import { nodeTypes } from '@/components/builder/nodes'
 import 'reactflow/dist/style.css'
-import { TextIcon } from 'lucide-react'
+import { BaseNode } from '@/components/builder/nodes'
+import { FlowNode, NodeData } from '@/types/builder'
 
-const initialNodes = [
-  {
-    id: '1',
-    type: 'base',
-    data: { 
-      label: 'System Prompt',
-      content: 'Define the behavior and context of your AI assistant',
-      icon: TextIcon,
-    },
-    position: { x: 250, y: 25 },
-  },
-]
+const nodeTypes = {
+  base: BaseNode,
+}
 
-const initialEdges: Edge[] = []
+interface BuilderProps {
+  initialNodes?: FlowNode[]
+  initialEdges?: Edge[]
+}
 
-export function WorkflowBuilder() {
+export function Builder({ initialNodes = [], initialEdges = [] }: BuilderProps) {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
   const { zoomTo } = useReactFlow()
 
+  const isValidConnection = (connection: Connection) => {
+    console.log('connection', connection)
+    const sourceNode = nodes.find((node) => node.id === connection.source)
+    const targetNode = nodes.find((node) => node.id === connection.target)
+
+    if (!sourceNode || !targetNode) return false
+
+    // Get the output type of the source node
+    const sourceOutput = (sourceNode.data as NodeData).output
+    // Get the accepted input types of the target node
+    const targetInputs = (targetNode.data as NodeData).input || []
+
+    console.log('targetInputs', targetInputs)
+    console.log('sourceOutput', sourceOutput) 
+
+    // Check if the target node accepts the source node's output type
+    return targetInputs.includes(sourceOutput)
+  }
+
   const onConnect = useCallback(
-    (params: Connection | Edge) => setEdges((eds) => addEdge(params, eds)),
-    [setEdges],
+    (connection: Connection) => {
+      console.log('connection', isValidConnection(connection))
+      if (isValidConnection(connection)) {
+        setEdges((eds) => addEdge(connection, eds))
+      }
+    },
+    [nodes, setEdges]
   )
 
   useEffect(() => {
@@ -72,12 +90,6 @@ export function WorkflowBuilder() {
         fitView
         className="bg-background"
       >
-        {/* <Controls className="border bg-background" />
-        <MiniMap 
-          className="!bg-background !border"
-          nodeColor="var(--primary)"
-          maskColor="rgb(0 0 0 / 0.1)"
-        /> */}
         <Background 
           variant={BackgroundVariant.Dots} 
           gap={12} 
@@ -85,6 +97,7 @@ export function WorkflowBuilder() {
           color="var(--muted)"
           className="!bg-muted/30"
         />
+        {/* <Controls /> */}
       </ReactFlow>
     </div>
   )

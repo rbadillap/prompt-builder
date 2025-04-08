@@ -2,10 +2,9 @@
 
 import { Handle, NodeProps, Position } from 'reactflow'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@workspace/ui/components/card'
-import { Button } from '@workspace/ui/components/button'
-import { SettingsIcon } from 'lucide-react'
+import { NodeData } from '@/types/builder'
 
-export function BaseNode({ data, isConnectable }: NodeProps) {
+export function BaseNode({ data, isConnectable }: NodeProps<NodeData>) {
   return (
     <Card className="min-w-xs border border-dashed border-muted bg-muted/50 shadow-md">
       <CardHeader className="border-b border-accent-foreground/10">
@@ -15,15 +14,19 @@ export function BaseNode({ data, isConnectable }: NodeProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <Handle
-          type="target"
-          position={Position.Top}
-          className="!bg-muted-foreground !w-3 !h-3 !border-2 !border-background"
-          isConnectable={isConnectable}
-        />
+        {/* Only show input handle if the node accepts inputs */}
+        {data.input && data.input.length > 0 && (
+          <Handle
+            type="target"
+            position={Position.Top}
+            className="!bg-muted-foreground !w-3 !h-3 !border-2 !border-background"
+            isConnectable={isConnectable}
+          />
+        )}
         <p className="text-sm text-muted-foreground">
-          {data.content || 'Configure this node'}
+          {data.content.display || 'Configure this node'}
         </p>
+        {/* All nodes have outputs */}
         <Handle
           type="source"
           position={Position.Bottom}
@@ -34,9 +37,5 @@ export function BaseNode({ data, isConnectable }: NodeProps) {
     </Card>
   )
 }
-
-export const nodeTypes = {
-  base: BaseNode,
-} 
 
 BaseNode.displayName = 'BaseNode'

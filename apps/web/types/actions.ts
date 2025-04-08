@@ -1,5 +1,8 @@
 import { LucideIcon } from "lucide-react"
 
+// Define primitive types here as the source of truth
+export type PrimitiveNodeType = 'text' | 'image' | 'audio'
+
 export type ActionProvider = "openai" | "anthropic" | "google" | "stability" | "mistral"
 
 export interface BaseAction {
@@ -9,12 +12,16 @@ export interface BaseAction {
   icon: LucideIcon
   tags: string[]
   provider: ActionProvider
+  input?: PrimitiveNodeType[]    // Add input/output types to BaseAction
+  output: PrimitiveNodeType      // Every action must define its output type
 }
 
 export interface TextGenerationAction extends BaseAction {
   type: "text"
   maxLength?: number
   temperature?: number
+  input: []
+  output: 'text'
 }
 
 export interface ImageGenerationAction extends BaseAction {
@@ -24,6 +31,8 @@ export interface ImageGenerationAction extends BaseAction {
     height: number
     label: string
   }>
+  input: ['text']
+  output: 'image'
 }
 
 export interface TextToSpeechAction extends BaseAction {
@@ -33,11 +42,15 @@ export interface TextToSpeechAction extends BaseAction {
     name: string
     preview?: string
   }>
+  input: ['text']
+  output: 'audio'
 }
 
 export interface TranslationAction extends BaseAction {
   type: "translation"
   supportedLanguages: string[]
+  input: ['text']
+  output: 'text'
 }
 
 export interface ContentWritingAction extends BaseAction {
@@ -47,6 +60,8 @@ export interface ContentWritingAction extends BaseAction {
     name: string
     description: string
   }>
+  input: ['text']
+  output: 'text'
 }
 
 export interface ChatAnalyzeAction extends BaseAction {
@@ -56,6 +71,8 @@ export interface ChatAnalyzeAction extends BaseAction {
     name: string
     description: string
   }>
+  input: ['text']
+  output: 'text'
 }
 
 export interface WritingImprovementAction extends BaseAction {
@@ -65,11 +82,15 @@ export interface WritingImprovementAction extends BaseAction {
     name: string
     description: string
   }>
+  input: ['text']
+  output: 'text'
 }
 
 export interface TextSummarizationAction extends BaseAction {
   type: "summary"
   maxLength?: number
+  input: ['text']
+  output: 'text'
 }
 
 export type Action =

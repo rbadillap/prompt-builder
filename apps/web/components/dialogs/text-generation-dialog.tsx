@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { TextGenerationAction } from "@/types/actions"
+import { type DialogFormData, type ActionDialogComponent } from "@/types/dialogs"
 import { Button } from "@workspace/ui/components/button"
 import { DialogFooter, DialogClose } from "@workspace/ui/components/dialog"
 import {
@@ -18,8 +19,6 @@ import {
 } from "@workspace/ui/components/form"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { Slider } from "@workspace/ui/components/slider"
-import { useBuilder } from "@/components/builder/context"
-import { Text, TextIcon } from "lucide-react"
 
 const formSchema = z.object({
   prompt: z.string().min(10, {
@@ -28,18 +27,21 @@ const formSchema = z.object({
   temperature: z.number().min(0).max(2),
 })
 
-type FormValues = z.infer<typeof formSchema>
-
-interface TextGenerationDialogProps {
-  action: TextGenerationAction
+interface TextGenerationFormData extends DialogFormData {
+  content: {
+    prompt: string
+    temperature: number
+  }
 }
 
-export function TextGenerationDialog({ action }: TextGenerationDialogProps) {
+export function TextGenerationDialog({ 
+  action, 
+  onSubmit 
+}: ActionDialogComponent<TextGenerationAction, TextGenerationFormData>) {
   const [isLoading, setIsLoading] = React.useState(false)
-  const { addNode } = useBuilder()
   const closeRef = React.useRef<HTMLButtonElement>(null)
 
-  const form = useForm<FormValues>({
+  const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       prompt: "",
@@ -47,26 +49,21 @@ export function TextGenerationDialog({ action }: TextGenerationDialogProps) {
     },
   })
 
-  async function onSubmit(values: FormValues) {
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setIsLoading(true)
       
-      // Add node to the builder
-      addNode({
-        type: 'text-generation',
-        label: 'Text Generation',
-        icon: TextIcon,
-        content: JSON.stringify({
+      // Just pass the form data to the parent
+      onSubmit({
+        content: {
           prompt: values.prompt,
           temperature: values.temperature,
-        }),
+        }
       })
 
-      // Close the dialog using the ref
       closeRef.current?.click()
-
     } catch (error) {
-      console.error("Error generating text:", error)
+      console.error("Error:", error)
     } finally {
       setIsLoading(false)
     }
@@ -74,7 +71,7 @@ export function TextGenerationDialog({ action }: TextGenerationDialogProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4 py-4">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="grid gap-4 py-4">
         <FormField
           control={form.control}
           name="prompt"

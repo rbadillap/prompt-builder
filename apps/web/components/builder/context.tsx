@@ -2,13 +2,7 @@
 
 import { createContext, useContext, useCallback } from 'react'
 import { Node, Edge, useReactFlow } from 'reactflow'
-
-interface NodeData {
-  type: string
-  label: string
-  content: any
-  icon: React.ElementType
-}
+import { NodeData } from '@/types/builder'
 
 interface BuilderContextType {
   addNode: (data: NodeData) => void
