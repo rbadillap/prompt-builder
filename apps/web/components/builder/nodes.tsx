@@ -24,7 +24,7 @@ export function BaseNode({ data, isConnectable }: NodeProps<NodeData>) {
           />
         )}
         <p className="text-sm text-muted-foreground">
-          {data.content.display || 'Configure this node'}
+          {data.label === 'Generate Text' ? 'Generate a text based on the prompt' : 'Generate an image based on the output of the previous node'}
         </p>
         {/* All nodes have outputs */}
         <Handle

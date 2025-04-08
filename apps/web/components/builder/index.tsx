@@ -33,7 +33,6 @@ export function Builder({ initialNodes = [], initialEdges = [] }: BuilderProps) 
   const { zoomTo } = useReactFlow()
 
   const isValidConnection = (connection: Connection) => {
-    console.log('connection', connection)
     const sourceNode = nodes.find((node) => node.id === connection.source)
     const targetNode = nodes.find((node) => node.id === connection.target)
 
@@ -44,16 +43,12 @@ export function Builder({ initialNodes = [], initialEdges = [] }: BuilderProps) 
     // Get the accepted input types of the target node
     const targetInputs = (targetNode.data as NodeData).input || []
 
-    console.log('targetInputs', targetInputs)
-    console.log('sourceOutput', sourceOutput) 
-
     // Check if the target node accepts the source node's output type
     return targetInputs.includes(sourceOutput)
   }
 
   const onConnect = useCallback(
     (connection: Connection) => {
-      console.log('connection', isValidConnection(connection))
       if (isValidConnection(connection)) {
         setEdges((eds) => addEdge(connection, eds))
       }
@@ -61,12 +56,12 @@ export function Builder({ initialNodes = [], initialEdges = [] }: BuilderProps) 
     [nodes, setEdges]
   )
 
-  useEffect(() => {
-    // Set initial zoom level after the component mounts
-    setTimeout(() => {
-      zoomTo(0.9)
-    }, 100)
-  }, [zoomTo])
+  // useEffect(() => {
+  //   // Set initial zoom level after the component mounts
+  //   setTimeout(() => {
+  //     zoomTo(0.9)
+  //   }, 100)
+  // }, [zoomTo])
 
   return (
     <div className="h-full w-full">

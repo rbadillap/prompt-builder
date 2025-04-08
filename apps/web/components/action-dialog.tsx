@@ -38,37 +38,6 @@ interface ActionDialogProps {
   children?: React.ReactNode
 }
 
-// Helper function to determine node I/O types based on action type
-function getNodeIOTypes(actionType: ActionType): { input: PrimitiveNodeType[], output: PrimitiveNodeType } {
-  console.log('actionType', actionType)
-  switch (actionType) {
-    case 'text':
-    case 'content':
-    case 'improvement':
-    case 'summary':
-    case 'translation':
-      return {
-        input: [], // These are typically starter nodes
-        output: 'text'
-      }
-    case 'image':
-      return {
-        input: ['text'], // Takes a text prompt
-        output: 'image'
-      }
-    case 'speech':
-      return {
-        input: ['text'],
-        output: 'audio'
-      }
-    default:
-      return {
-        input: [],
-        output: 'text'
-      }
-  }
-}
-
 export function ActionDialog({ action, trigger, children }: ActionDialogProps) {
   const { addNode } = useBuilder()
   const DialogComponent = dialogComponents[action.type]
@@ -97,7 +66,7 @@ export function ActionDialog({ action, trigger, children }: ActionDialogProps) {
       <DialogTrigger asChild>
         {trigger || children}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent >
         <DialogHeader>
           <DialogTitle>{action.title}</DialogTitle>
           <DialogDescription>

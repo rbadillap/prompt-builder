@@ -30,7 +30,7 @@ export function BuilderProvider({ children }: { children: React.ReactNode }) {
       // If there are existing nodes, place it below the last one
       const lastNode = nodes[nodes.length - 1]
       const position = lastNode
-        ? { x: lastNode.position.x, y: lastNode.position.y + 100 }
+        ? { x: lastNode.position.x, y: lastNode.position.y + 200 }
         : { x: 250, y: 25 }
 
       const newNode: Node = {
@@ -41,6 +41,8 @@ export function BuilderProvider({ children }: { children: React.ReactNode }) {
           label: data.label,
           content: data.content,
           icon: data.icon,
+          input: data.input,
+          output: data.output,
         },
       }
 

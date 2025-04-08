@@ -363,7 +363,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter>
-          <NavUser user={data.user} />
         </SidebarFooter>
       </Sidebar>
       {/* This is the second sidebar */}
