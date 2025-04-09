@@ -42,9 +42,11 @@ interface UserInputFormData {
 }
 
 export function UserInputDialog({ 
-  onSubmit 
+  onSubmit,
+  initialData 
 }: { 
   onSubmit: (data: UserInputFormData) => void 
+  initialData?: UserInputFormData['content'] | null
 }) {
   const [isLoading, setIsLoading] = React.useState(false)
   const closeRef = React.useRef<HTMLButtonElement>(null)
@@ -52,9 +54,9 @@ export function UserInputDialog({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      label: "",
-      placeholder: "",
-      description: "",
+      label: initialData?.label || "",
+      placeholder: initialData?.placeholder || "",
+      description: initialData?.description || "",
     },
   })
 
@@ -150,7 +152,7 @@ export function UserInputDialog({
                 Cancel
               </Button>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Saving..." : "Save Configuration"}
+                {isLoading ? "Saving..." : (initialData ? "Update Configuration" : "Save Configuration")}
               </Button>
             </DialogFooter>
           </form>

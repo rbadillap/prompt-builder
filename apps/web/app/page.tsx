@@ -1,7 +1,7 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import { NavActions } from "@/components/nav-actions"
 import { Builder } from "@/components/builder"
-import { UserInputActionDialog } from "@/components/dialogs/user-input-action-dialog"
+import { InputContainer } from "@/components/input-container"
 
 import {
   Breadcrumb,
@@ -53,12 +53,7 @@ export default function Page() {
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 px-4 py-10">
-          <UserInputActionDialog>
-            <div className="mx-auto h-24 w-full max-w-3xl rounded-xl border-2 border-dashed border-muted-foreground/25 bg-muted/20 hover:bg-muted/30 hover:border-muted-foreground/40 transition-colors cursor-pointer flex flex-col items-center justify-center group">
-              <p className="text-muted-foreground group-hover:text-foreground transition-colors">Define user input</p>
-              <p className="text-xs text-muted-foreground/70 group-hover:text-muted-foreground transition-colors">Click here to configure what information you need from users</p>
-            </div>
-          </UserInputActionDialog>
+          <InputContainer />
           <div className="mx-auto h-[calc(100vh-16rem)] w-full max-w-3xl rounded-xl bg-muted/50 overflow-hidden">
             <Builder />
           </div>
