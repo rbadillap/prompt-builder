@@ -1,7 +1,9 @@
 "use client"
 
 import * as React from "react"
-import { Action, ActionType } from "@/types/actions"
+import { ActionType, PrimitiveNodeType, type Action } from "@/types/actions"
+import { type DialogFormData } from "@/types/dialogs"
+import { useBuilder } from "@/components/builder/context"
 import {
   Dialog,
   DialogContent,
@@ -37,23 +39,44 @@ interface ActionDialogProps {
 }
 
 export function ActionDialog({ action, trigger, children }: ActionDialogProps) {
-  // TypeScript will infer the correct type based on action.type
+  const { addNode } = useBuilder()
   const DialogComponent = dialogComponents[action.type]
+
+  const handleSubmit = React.useCallback(
+    (formData: DialogFormData) => {
+      console.log('action', action)
+      // Add node to the builder with the form data
+      addNode({
+        type: 'base',
+        label: action.title,
+        icon: action.icon,
+        input: action.input,
+        output: action.output,
+        content: {
+          display: action.title,
+          data: formData.content
+        }
+      })
+    },
+    [action, addNode]
+  )
 
   return (
     <Dialog>
       <DialogTrigger asChild>
         {trigger || children}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent >
         <DialogHeader>
           <DialogTitle>{action.title}</DialogTitle>
           <DialogDescription>
             {action.description}
           </DialogDescription>
         </DialogHeader>
-        {/* @ts-expect-error - TypeScript cannot infer that the action type matches the component */}
-        <DialogComponent action={action} />
+        <DialogComponent 
+          action={action as never} 
+          onSubmit={handleSubmit}
+        />
       </DialogContent>
     </Dialog>
   )

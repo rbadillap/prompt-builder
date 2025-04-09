@@ -181,6 +181,8 @@ const data = {
       type: "text",
       title: "Generate Text",
       description: "Generate text based on your input",
+      input: [],
+      output: "text",
       icon: TextQuoteIcon,
       tags: ["create", "assistant"],
       provider: "openai",
@@ -192,6 +194,8 @@ const data = {
       type: "image",
       title: "Generate Images",
       description: "Create images by describing what you want to see",
+      input: ["text"],
+      output: "image",
       icon: ImageIcon,
       tags: ["images", "art"],
       provider: "stability",
@@ -206,6 +210,8 @@ const data = {
       type: "speech",
       title: "Text to Speech",
       description: "Convert your text into natural-sounding speech",
+      input: ["text"],
+      output: "audio",
       icon: MusicIcon,
       tags: ["audio", "voice"],
       provider: "google",
@@ -222,6 +228,8 @@ const data = {
       icon: LandPlot,
       tags: ["translate", "language"],
       provider: "google",
+      input: ["text"],
+      output: "text",
       supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "zh", "ja", "ko"]
     },
     {
@@ -232,6 +240,8 @@ const data = {
       icon: FileText,
       tags: ["write", "content"],
       provider: "anthropic",
+      input: ["text"],
+      output: "text",
       templates: [
         { id: "blog", name: "Blog Post", description: "Write a blog post" },
         { id: "email", name: "Email", description: "Write a professional email" }
@@ -245,6 +255,8 @@ const data = {
       icon: MessageSquarePlus,
       tags: ["chat", "analyze"],
       provider: "openai",
+      input: ["text"],
+      output: "text",
       features: [
         { id: "chat", name: "Chat", description: "Have a conversation" },
         { id: "analyze", name: "Analyze", description: "Analyze data" }
@@ -258,6 +270,8 @@ const data = {
       icon: Sparkles,
       tags: ["improve", "edit"],
       provider: "anthropic",
+      input: ["text"],
+      output: "text",
       modes: [
         { id: "clarity", name: "Clarity", description: "Improve clarity" },
         { id: "tone", name: "Tone", description: "Adjust tone" }
@@ -271,6 +285,8 @@ const data = {
       icon: TextQuoteIcon,
       tags: ["summary", "extract"],
       provider: "anthropic",
+      input: ["text"],
+      output: "text",
       maxLength: 1000
     }
   ] as Action[],
@@ -347,7 +363,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter>
-          <NavUser user={data.user} />
         </SidebarFooter>
       </Sidebar>
       {/* This is the second sidebar */}
