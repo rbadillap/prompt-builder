@@ -45,7 +45,7 @@ import {
 } from "@workspace/ui/components/sidebar"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@workspace/ui/components/tooltip"
 import { TooltipProvider } from "@workspace/ui/components/tooltip"
-import { useWorkflowExecution } from "@/hooks/use-workflow-execution"
+import { WorkflowSheet } from "./sheets/workflow-sheet"
 
 const data = [
   [
@@ -108,7 +108,7 @@ const data = [
 
 export function NavActions() {
   const [isOpen, setIsOpen] = React.useState(false)
-  const { executeWorkflow, isExecuting } = useWorkflowExecution()
+  const [isSheetOpen, setIsSheetOpen] = React.useState(false)
 
   return (
     <div className="flex items-center gap-2 text-sm">
@@ -122,18 +122,13 @@ export function NavActions() {
               variant="ghost" 
               size="icon" 
               className="h-7 w-7"
-              onClick={executeWorkflow}
-              disabled={isExecuting}
+              onClick={() => setIsSheetOpen(true)}
             >
-              {isExecuting ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Play className="h-4 w-4" />
-              )}
+              <Play className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>{isExecuting ? "Executing..." : "Run Workflow"}</p>
+            <p>Open Workflow</p>
           </TooltipContent>
         </Tooltip>
         <Tooltip>
@@ -182,6 +177,11 @@ export function NavActions() {
           </Sidebar>
         </PopoverContent>
       </Popover>
+
+      <WorkflowSheet 
+        open={isSheetOpen} 
+        onOpenChange={setIsSheetOpen} 
+      />
     </div>
   )
 }

@@ -9,7 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@workspace/ui/components/dialog"
-import { UserInputDialog } from "./user-input-dialog"
+import { UserInputDialog } from "@/components/dialogs/user-input-dialog"
 import { useInputStore } from "@/store/input-store"
 
 interface UserInputActionDialogProps {
