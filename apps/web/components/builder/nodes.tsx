@@ -24,7 +24,8 @@ export function BaseNode({ data, isConnectable }: NodeProps<NodeData>) {
           />
         )}
         <p className="text-sm text-muted-foreground">
-          {data.label === 'Generate Text' ? 'Generate a text based on the prompt' : 'Generate an image based on the output of the previous node'}
+          {/* Add elipsis if the prompt is too long */}
+          {data.content.data.prompt.length > 100 ? `${data.content.data.prompt.slice(0, 100)}...` : data.content.data.prompt}
         </p>
         {/* All nodes have outputs */}
         <Handle

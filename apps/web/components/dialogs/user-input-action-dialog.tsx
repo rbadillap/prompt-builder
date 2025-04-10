@@ -31,11 +31,6 @@ export function UserInputActionDialog({ children }: UserInputActionDialogProps) 
       <DialogTrigger asChild>
         <div className="relative">
           {children}
-          {config && (
-            <div className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
-              <Check className="h-3 w-3" />
-            </div>
-          )}
         </div>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
