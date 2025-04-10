@@ -24,5 +24,6 @@ More information: [use-workflow-execution.ts](mdc:hooks/use-workflow-execution.t
 We use zustand for store management. 
 More info: [input-store.ts](mdc:store/input-store.ts), and [workflow-store.ts](mdc:store/workflow-store.ts), 
 
-## Workflow API
-Consider [route.ts](mdc:app/api/ai/route.ts) for the backend process and AI communication.
+# Workflow API Chat
+Consider the API Chat as the direct logic to communicate with the LLM via ai-sdk. This is the place also to process the template and generate a final prompt.
+More info: [route.ts](mdc:app/api/chat/route.ts)
