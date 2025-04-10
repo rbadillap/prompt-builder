@@ -1,14 +1,17 @@
 import { openai } from '@ai-sdk/openai'
-import { generateText } from 'ai'
+import { streamText } from 'ai'
 import { type Action } from '@/types/actions'
 import { type ExecutionResult } from '@/store/workflow-store'
 
 export const runtime = 'edge'
 
+// Allow streaming responses up to 30 seconds
+export const maxDuration = 30;
+
 export async function POST(req: Request) {
   console.log('📨 AI endpoint received request')
   const { type, config, inputs } = await req.json()
-  console.log('🔍 Request details:', { type, config })
+  console.log('🔍 Request details:', { type, config, inputs })
 
   try {
     switch (type as Action['type']) {
@@ -17,42 +20,43 @@ export async function POST(req: Request) {
         const prompt = processTemplate(config.prompt, inputs)
         console.log('🎯 Processed prompt:', prompt)
 
-        const { text } = await generateText({
+        const result = streamText({
           model: openai('gpt-4-turbo-preview'),
-          prompt: prompt,
+          messages: [
+            {
+              role: 'system',
+              content: prompt
+            }
+          ],
           temperature: config.temperature || 0.7,
         })
-        console.log('✨ OpenAI text response received')
 
-        return Response.json({
-          type: 'text',
-          value: text
-        } as ExecutionResult)
+        return result.toDataStreamResponse()
       }
 
       case 'image': {
-        console.log('🎨 Processing image generation request')
-        const prompt = processTemplate(config.prompt, inputs)
-        console.log('🎯 Processed prompt:', prompt)
+        // console.log('🎨 Processing image generation request')
+        // const prompt = processTemplate(config.prompt, inputs)
+        // console.log('🎯 Processed prompt:', prompt)
 
-        const response = await openai.images.generate({
-          model: 'dall-e-3',
-          prompt: prompt,
-          n: 1,
-          size: mapImageSize(config.size),
-          quality: 'standard',
-          response_format: 'url',
-        })
-        console.log('✨ OpenAI image response received')
+        // const response = await openai.image.generate({
+        //   model: 'dall-e-3',
+        //   prompt: prompt,
+        //   n: 1,
+        //   size: mapImageSize(config.size),
+        //   quality: 'standard',
+        //   response_format: 'url',
+        // })
+        // console.log('✨ OpenAI image response received')
 
-        if (!response.data?.[0]?.url) {
-          throw new Error('No image URL in response')
-        }
+        // if (!response.data?.[0]?.url) {
+        //   throw new Error('No image URL in response')
+        // }
 
-        return Response.json({
-          type: 'image',
-          value: response.data[0].url
-        } as ExecutionResult)
+        // return Response.json({
+        //   type: 'image',
+        //   value: response.data[0].url
+        // } as ExecutionResult)
       }
 
       // Add other cases as needed...
