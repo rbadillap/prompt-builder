@@ -17,8 +17,12 @@ Think of **User Inputs** as pieces of information the workflow may need from the
 More information: [user-input-dialog.tsx](mdc:components/dialogs/user-input-dialog.tsx) and [user-input-action-dialog.tsx](mdc:components/dialogs/user-input-action-dialog.tsx).
 
 ## Workflow Execution  
-Workflows are executed by running the configured actions in sequence, optionally using user inputs to complete the prompts.
+Think of **Workflows** as the logic to execute configured actions in sequence, optionally using user inputs to complete the prompts.
+More information: [use-workflow-execution.ts](mdc:hooks/use-workflow-execution.ts) hook.
 
 ## Workflow Store
-We use zustand for store management.
-More info: [input-store.ts](mdc:store/input-store.ts), and [workflow-store.ts](mdc:store/workflow-store.ts)
+We use zustand for store management. 
+More info: [input-store.ts](mdc:store/input-store.ts), and [workflow-store.ts](mdc:store/workflow-store.ts), 
+
+## Workflow API
+Consider [route.ts](mdc:app/api/ai/route.ts) for the backend process and AI communication.

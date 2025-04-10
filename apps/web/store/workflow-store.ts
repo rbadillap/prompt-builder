@@ -1,12 +1,19 @@
 import { create } from 'zustand'
 import { type NodeData, type FlowNode } from '@/types/builder'
 import { type DialogFormData } from '@/types/dialogs'
+import { type PrimitiveNodeType } from '@/types/actions'
 
 // Define connection type for workflow
 interface Connection {
   id: string
   sourceNodeId: string
   targetNodeId: string
+}
+
+// Define execution result type
+export interface ExecutionResult {
+  type: PrimitiveNodeType
+  value: any // Could be text, image URL, audio URL, etc.
 }
 
 // Define workflow state interface
@@ -16,8 +23,12 @@ interface WorkflowState {
   nodeConfigs: {
     [nodeId: string]: DialogFormData['content']
   }
+  nodeResults: {
+    [nodeId: string]: ExecutionResult
+  }
   isExecuting: boolean
   currentNodeId: string | null
+  error: string | null
 }
 
 // Define workflow store actions
@@ -29,17 +40,22 @@ interface WorkflowStore extends WorkflowState {
   removeConnection: (connectionId: string) => void
   setExecuting: (isExecuting: boolean) => void
   setCurrentNode: (nodeId: string | null) => void
+  setNodeResult: (nodeId: string, result: ExecutionResult) => void
+  setError: (error: string | null) => void
   clearWorkflow: () => void
+  getNodeInputs: (nodeId: string) => ExecutionResult[]
 }
 
 // Create the store
-export const useWorkflowStore = create<WorkflowStore>((set) => ({
+export const useWorkflowStore = create<WorkflowStore>((set, get) => ({
   // Initial state
   nodes: [],
   connections: [],
   nodeConfigs: {},
+  nodeResults: {},
   isExecuting: false,
   currentNodeId: null,
+  error: null,
 
   // Actions
   addNode: (node) => 
@@ -55,6 +71,9 @@ export const useWorkflowStore = create<WorkflowStore>((set) => ({
       ),
       nodeConfigs: Object.fromEntries(
         Object.entries(state.nodeConfigs).filter(([id]) => id !== nodeId)
+      ),
+      nodeResults: Object.fromEntries(
+        Object.entries(state.nodeResults).filter(([id]) => id !== nodeId)
       )
     })),
 
@@ -82,12 +101,36 @@ export const useWorkflowStore = create<WorkflowStore>((set) => ({
   setCurrentNode: (nodeId) =>
     set({ currentNodeId: nodeId }),
 
+  setNodeResult: (nodeId, result) =>
+    set((state) => ({
+      nodeResults: {
+        ...state.nodeResults,
+        [nodeId]: result
+      }
+    })),
+
+  setError: (error) =>
+    set({ error }),
+
   clearWorkflow: () =>
     set({
       nodes: [],
       connections: [],
       nodeConfigs: {},
+      nodeResults: {},
       isExecuting: false,
-      currentNodeId: null
-    })
+      currentNodeId: null,
+      error: null
+    }),
+
+  // Helper function to get input values for a node
+  getNodeInputs: (nodeId) => {
+    const state = get()
+    const incomingConnections = state.connections.filter(
+      conn => conn.targetNodeId === nodeId
+    )
+    return incomingConnections
+      .map(conn => state.nodeResults[conn.sourceNodeId])
+      .filter((result): result is ExecutionResult => result !== undefined)
+  }
 })) 

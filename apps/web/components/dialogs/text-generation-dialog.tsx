@@ -22,8 +22,8 @@ import { Slider } from "@workspace/ui/components/slider"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
 
 const providers = [
-  { id: "openai", name: "OpenAI", description: "Powered by GPT-4 and GPT-3.5" },
-  { id: "anthropic", name: "Anthropic", description: "Powered by Claude" },
+  { id: "gpt-4", name: "GPT-4", description: "Powered by OpenAI" },
+  { id: "claude", name: "Claude", description: "Powered by Anthropic" },
   { id: "grok", name: "Grok", description: "Powered by xAI" },
   { id: "mistral", name: "Mistral", description: "Open source AI model" },
 ] as const

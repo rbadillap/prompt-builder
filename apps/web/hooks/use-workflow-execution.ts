@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useWorkflowStore } from '@/store/workflow-store'
 import { type FlowNode } from '@/types/builder'
-import { type Action } from '@/types/actions'
+import { executeAction } from '@/lib/action-executor'
 
 export function useWorkflowExecution() {
   const {
@@ -12,10 +12,14 @@ export function useWorkflowExecution() {
     currentNodeId,
     setExecuting,
     setCurrentNode,
+    setNodeResult,
+    setError,
+    getNodeInputs
   } = useWorkflowStore()
 
   // Get nodes in execution order (topological sort)
   const getExecutionOrder = useCallback(() => {
+    console.log('🔍 Calculating execution order...')
     const visited = new Set<string>()
     const order: FlowNode[] = []
     
@@ -42,59 +46,65 @@ export function useWorkflowExecution() {
     // Visit each root node
     rootNodes.forEach(node => visit(node.id))
     
+    console.log('📋 Execution order:', order.map(n => ({ id: n.id, type: n.type })))
     return order
   }, [nodes, connections])
 
   // Execute a single node
   const executeNode = useCallback(async (node: FlowNode) => {
+    console.log(`🎯 Executing node: ${node.id} (${node.type})`)
     try {
       setCurrentNode(node.id)
       const config = nodeConfigs[node.id]
+      const inputs = getNodeInputs(node.id)
       
-      // Here we'll add the actual execution logic based on node type
-      // For now, we'll just log the execution
-      console.log('Executing node:', {
-        id: node.id,
-        type: node.type,
-        config,
-      })
+      console.log('📥 Node inputs:', inputs)
+      console.log('⚙️ Node config:', config)
+
+      // Execute the action and store the result
+      const result = await executeAction(node.type as any, config, inputs)
+      console.log('📤 Node result:', result)
       
-      // TODO: Implement actual node execution logic
-      // This will involve:
-      // 1. Getting input from previous nodes
-      // 2. Executing the action based on node type
-      // 3. Storing the output for next nodes
-      
-      await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate execution
-      
+      setNodeResult(node.id, result)
+      console.log(`✅ Node ${node.id} executed successfully`)
       return true
     } catch (error) {
-      console.error('Error executing node:', error)
+      console.error(`❌ Error executing node ${node.id}:`, error)
+      setError(error instanceof Error ? error.message : 'Unknown error occurred')
       return false
     }
-  }, [nodeConfigs, setCurrentNode])
+  }, [nodeConfigs, setCurrentNode, setNodeResult, setError, getNodeInputs])
 
   // Execute the entire workflow
   const executeWorkflow = useCallback(async () => {
-    if (isExecuting) return
+    if (isExecuting) {
+      console.log('⏳ Workflow already executing, skipping...')
+      return
+    }
     
+    console.log('🚀 Starting workflow execution...')
     try {
+      setError(null)
       setExecuting(true)
       const executionOrder = getExecutionOrder()
       
       for (const node of executionOrder) {
         const success = await executeNode(node)
         if (!success) {
+          console.error(`❌ Workflow failed at node ${node.id}`)
           throw new Error(`Failed to execute node: ${node.id}`)
         }
       }
+      console.log('✨ Workflow completed successfully')
     } catch (error) {
-      console.error('Workflow execution failed:', error)
+      console.error('💥 Workflow execution failed:', error)
+      setError(error instanceof Error ? error.message : 'Workflow execution failed')
     } finally {
       setExecuting(false)
       setCurrentNode(null)
+      console.log('🏁 Workflow execution finished')
     }
-  }, [isExecuting, getExecutionOrder, executeNode, setExecuting, setCurrentNode])
+  }, [isExecuting, getExecutionOrder, executeNode, setExecuting, setCurrentNode, setError])
 
   return {
     executeWorkflow,
