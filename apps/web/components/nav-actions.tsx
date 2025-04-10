@@ -25,6 +25,7 @@ import {
   Bot,
   MessageSquarePlus,
   Play,
+  Loader2,
 } from "lucide-react"
 
 import { Button } from "@workspace/ui/components/button"
@@ -44,6 +45,7 @@ import {
 } from "@workspace/ui/components/sidebar"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@workspace/ui/components/tooltip"
 import { TooltipProvider } from "@workspace/ui/components/tooltip"
+import { useWorkflowExecution } from "@/hooks/use-workflow-execution"
 
 const data = [
   [
@@ -106,10 +108,7 @@ const data = [
 
 export function NavActions() {
   const [isOpen, setIsOpen] = React.useState(false)
-
-  React.useEffect(() => {
-    setIsOpen(true)
-  }, [])
+  const { executeWorkflow, isExecuting } = useWorkflowExecution()
 
   return (
     <div className="flex items-center gap-2 text-sm">
@@ -119,12 +118,22 @@ export function NavActions() {
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-7 w-7">
-              <Play />
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-7 w-7"
+              onClick={executeWorkflow}
+              disabled={isExecuting}
+            >
+              {isExecuting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Run</p>
+            <p>{isExecuting ? "Executing..." : "Run Workflow"}</p>
           </TooltipContent>
         </Tooltip>
         <Tooltip>
