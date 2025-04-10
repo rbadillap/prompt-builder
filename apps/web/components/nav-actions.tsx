@@ -24,6 +24,7 @@ import {
   Wand2,
   Bot,
   MessageSquarePlus,
+  Play,
 } from "lucide-react"
 
 import { Button } from "@workspace/ui/components/button"
@@ -41,6 +42,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@workspace/ui/components/sidebar"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@workspace/ui/components/tooltip"
+import { TooltipProvider } from "@workspace/ui/components/tooltip"
 
 const data = [
   [
@@ -111,11 +114,30 @@ export function NavActions() {
   return (
     <div className="flex items-center gap-2 text-sm">
       <div className="hidden font-medium text-muted-foreground md:inline-block">
-        Edit Oct 08
+        Last edited 10 Apr
       </div>
-      <Button variant="ghost" size="icon" className="h-7 w-7">
-        <Star />
-      </Button>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-7 w-7">
+              <Play />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Run</p>
+          </TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-7 w-7">
+              <Star />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Star</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
           <Button
