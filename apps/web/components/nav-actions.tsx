@@ -25,7 +25,6 @@ import {
   Bot,
   MessageSquarePlus,
   Play,
-  Loader2,
 } from "lucide-react"
 
 import { Button } from "@workspace/ui/components/button"
@@ -45,7 +44,9 @@ import {
 } from "@workspace/ui/components/sidebar"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@workspace/ui/components/tooltip"
 import { TooltipProvider } from "@workspace/ui/components/tooltip"
+import { InputSheet } from "./sheets/input-sheet"
 import { WorkflowSheet } from "./sheets/workflow-sheet"
+import { useWorkflowStore } from "@/store/workflow-store"
 
 const data = [
   [
@@ -108,7 +109,18 @@ const data = [
 
 export function NavActions() {
   const [isOpen, setIsOpen] = React.useState(false)
-  const [isSheetOpen, setIsSheetOpen] = React.useState(false)
+  const [isInputSheetOpen, setIsInputSheetOpen] = React.useState(false)
+  const [isWorkflowSheetOpen, setIsWorkflowSheetOpen] = React.useState(false)
+  const { setExecuting, setCurrentNode } = useWorkflowStore()
+
+  const handleWorkflowStart = () => {
+    setIsInputSheetOpen(false)
+    setIsWorkflowSheetOpen(true)
+    setExecuting(true)
+    // Start with the first node
+    // You might want to adjust this logic based on your workflow structure
+    setCurrentNode(null) // Reset current node
+  }
 
   return (
     <div className="flex items-center gap-2 text-sm">
@@ -122,13 +134,13 @@ export function NavActions() {
               variant="ghost" 
               size="icon" 
               className="h-7 w-7"
-              onClick={() => setIsSheetOpen(true)}
+              onClick={() => setIsInputSheetOpen(true)}
             >
               <Play className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Open Workflow</p>
+            <p>Run Workflow</p>
           </TooltipContent>
         </Tooltip>
         <Tooltip>
@@ -178,9 +190,14 @@ export function NavActions() {
         </PopoverContent>
       </Popover>
 
+      <InputSheet 
+        open={isInputSheetOpen} 
+        onOpenChange={setIsInputSheetOpen}
+        onSubmit={handleWorkflowStart}
+      />
       <WorkflowSheet 
-        open={isSheetOpen} 
-        onOpenChange={setIsSheetOpen} 
+        open={isWorkflowSheetOpen} 
+        onOpenChange={setIsWorkflowSheetOpen}
       />
     </div>
   )

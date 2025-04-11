@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useWorkflowStore } from '@/store/workflow-store'
 import { type FlowNode } from '@/types/builder'
-import { executeAction } from '@/lib/action-executor'
+import { useChatExecution } from './use-chat-execution'
 
 export function useWorkflowExecution() {
   const {
@@ -16,6 +16,8 @@ export function useWorkflowExecution() {
     setError,
     getNodeInputs
   } = useWorkflowStore()
+
+  const { executeChat, reset: resetChat } = useChatExecution()
 
   // Get nodes in execution order (topological sort)
   const getExecutionOrder = useCallback(() => {
@@ -61,8 +63,8 @@ export function useWorkflowExecution() {
       console.log('📥 Node inputs:', inputs)
       console.log('⚙️ Node config:', config)
 
-      // Execute the action and store the result
-      const result = await executeAction(node.type as any, config, inputs)
+      // Execute the chat action and store the result
+      const result = await executeChat(config, inputs)
       console.log('📤 Node result:', result)
       
       setNodeResult(node.id, result)
@@ -73,10 +75,11 @@ export function useWorkflowExecution() {
       setError(error instanceof Error ? error.message : 'Unknown error occurred')
       return false
     }
-  }, [nodeConfigs, setCurrentNode, setNodeResult, setError, getNodeInputs])
+  }, [nodeConfigs, setCurrentNode, setNodeResult, setError, getNodeInputs, executeChat])
 
   // Execute the entire workflow
   const executeWorkflow = useCallback(async () => {
+    console.log('🔄 executeWorkflow isExecuting:', isExecuting)
     if (isExecuting) {
       console.log('⏳ Workflow already executing, skipping...')
       return
@@ -86,6 +89,8 @@ export function useWorkflowExecution() {
     try {
       setError(null)
       setExecuting(true)
+      resetChat() // Reset chat messages before starting new workflow
+      
       const executionOrder = getExecutionOrder()
       
       for (const node of executionOrder) {
@@ -104,7 +109,7 @@ export function useWorkflowExecution() {
       setCurrentNode(null)
       console.log('🏁 Workflow execution finished')
     }
-  }, [isExecuting, getExecutionOrder, executeNode, setExecuting, setCurrentNode, setError])
+  }, [isExecuting, getExecutionOrder, executeNode, setExecuting, setCurrentNode, setError, resetChat])
 
   return {
     executeWorkflow,
