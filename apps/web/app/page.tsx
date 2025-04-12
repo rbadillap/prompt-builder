@@ -1,6 +1,7 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import { NavActions } from "@/components/nav-actions"
 import { Builder } from "@/components/builder"
+import { InputContainer } from "@/components/input-container"
 
 import {
   Breadcrumb,
@@ -16,6 +17,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@workspace/ui/components/sidebar"
+import { CommandIcon } from "lucide-react"
 
 export default function Page() {
   return (
@@ -29,7 +31,7 @@ export default function Page() {
       <AppSidebar />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2">
-          <div className="flex items-center gap-2 px-4">
+          <div className="flex items-center gap-1 px-4">
             <SidebarTrigger className="-ml-1" />
             <Separator
               orientation="vertical"
@@ -52,7 +54,7 @@ export default function Page() {
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 px-4 py-10">
-          <div className="mx-auto h-24 w-full max-w-3xl rounded-xl bg-muted/50" />
+          <InputContainer />
           <div className="mx-auto h-[calc(100vh-16rem)] w-full max-w-3xl rounded-xl bg-muted/50 overflow-hidden">
             <Builder />
           </div>

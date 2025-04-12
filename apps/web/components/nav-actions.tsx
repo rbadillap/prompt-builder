@@ -24,6 +24,7 @@ import {
   Wand2,
   Bot,
   MessageSquarePlus,
+  Play,
 } from "lucide-react"
 
 import { Button } from "@workspace/ui/components/button"
@@ -41,6 +42,11 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@workspace/ui/components/sidebar"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@workspace/ui/components/tooltip"
+import { TooltipProvider } from "@workspace/ui/components/tooltip"
+import { InputSheet } from "./sheets/input-sheet"
+import { WorkflowSheet } from "./sheets/workflow-sheet"
+import { useWorkflowStore } from "@/store/workflow-store"
 
 const data = [
   [
@@ -103,19 +109,51 @@ const data = [
 
 export function NavActions() {
   const [isOpen, setIsOpen] = React.useState(false)
+  const [isInputSheetOpen, setIsInputSheetOpen] = React.useState(false)
+  const [isWorkflowSheetOpen, setIsWorkflowSheetOpen] = React.useState(false)
+  const { setExecuting, setCurrentNode } = useWorkflowStore()
 
-  React.useEffect(() => {
-    setIsOpen(true)
-  }, [])
+  const handleWorkflowStart = () => {
+    setIsInputSheetOpen(false)
+    setIsWorkflowSheetOpen(true)
+    setExecuting(true)
+    // Start with the first node
+    // You might want to adjust this logic based on your workflow structure
+    setCurrentNode(null) // Reset current node
+  }
 
   return (
     <div className="flex items-center gap-2 text-sm">
       <div className="hidden font-medium text-muted-foreground md:inline-block">
-        Edit Oct 08
+        Last edited 10 Apr
       </div>
-      <Button variant="ghost" size="icon" className="h-7 w-7">
-        <Star />
-      </Button>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-7 w-7"
+              onClick={() => setIsInputSheetOpen(true)}
+            >
+              <Play className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Run Workflow</p>
+          </TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-7 w-7">
+              <Star />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Star</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -151,6 +189,16 @@ export function NavActions() {
           </Sidebar>
         </PopoverContent>
       </Popover>
+
+      <InputSheet 
+        open={isInputSheetOpen} 
+        onOpenChange={setIsInputSheetOpen}
+        onSubmit={handleWorkflowStart}
+      />
+      <WorkflowSheet 
+        open={isWorkflowSheetOpen} 
+        onOpenChange={setIsWorkflowSheetOpen}
+      />
     </div>
   )
 }

@@ -4,6 +4,7 @@ import * as React from "react"
 import { ActionType, PrimitiveNodeType, type Action } from "@/types/actions"
 import { type DialogFormData } from "@/types/dialogs"
 import { useBuilder } from "@/components/builder/context"
+import { useWorkflowStore } from "@/store/workflow-store"
 import {
   Dialog,
   DialogContent,
@@ -39,15 +40,19 @@ interface ActionDialogProps {
 }
 
 export function ActionDialog({ action, trigger, children }: ActionDialogProps) {
-  const { addNode } = useBuilder()
+  const { addNode: addNodeToBuilder } = useBuilder()
+  const { addNode: addNodeToWorkflow, updateNodeConfig } = useWorkflowStore()
   const DialogComponent = dialogComponents[action.type]
 
   const handleSubmit = React.useCallback(
     (formData: DialogFormData) => {
-      console.log('action', action)
-      // Add node to the builder with the form data
-      addNode({
-        type: 'base',
+      // Generate node ID that will be used by both stores
+      const nodeId = `node-${Date.now()}`
+
+      // Create the node data
+      console.log('🔍 formData:', formData)
+      const nodeData = {
+        type: action.type,
         label: action.title,
         icon: action.icon,
         input: action.input,
@@ -56,9 +61,23 @@ export function ActionDialog({ action, trigger, children }: ActionDialogProps) {
           display: action.title,
           data: formData.content
         }
+      }
+
+      // Add node to the builder UI
+      addNodeToBuilder(nodeData)
+
+      // Add node to the workflow store
+      addNodeToWorkflow({
+        id: nodeId,
+        type: action.type,
+        position: { x: 0, y: 0 }, // Position will be set by BuilderProvider
+        data: nodeData
       })
+
+      // Store the node configuration
+      updateNodeConfig(nodeId, formData.content)
     },
-    [action, addNode]
+    [action, addNodeToBuilder, addNodeToWorkflow, updateNodeConfig]
   )
 
   return (

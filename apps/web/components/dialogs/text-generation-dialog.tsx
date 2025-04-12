@@ -22,8 +22,8 @@ import { Slider } from "@workspace/ui/components/slider"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
 
 const providers = [
-  { id: "openai", name: "OpenAI", description: "Powered by GPT-4 and GPT-3.5" },
-  { id: "anthropic", name: "Anthropic", description: "Powered by Claude" },
+  { id: "openai", name: "GPT-4", description: "Powered by OpenAI" },
+  { id: "claude", name: "Claude", description: "Powered by Anthropic" },
   { id: "grok", name: "Grok", description: "Powered by xAI" },
   { id: "mistral", name: "Mistral", description: "Open source AI model" },
 ] as const
@@ -116,15 +116,48 @@ export function TextGenerationDialog({
           render={({ field }) => (
             <FormItem>
               <FormLabel>What would you like to generate?</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Write your prompt here..."
-                  className="min-h-[150px]"
-                  {...field}
-                />
-              </FormControl>
+              <div className="flex flex-col gap-2">
+                <FormControl>
+                  <div className="relative">
+                    <Textarea
+                      placeholder="Write your prompt here..."
+                      className="min-h-[150px] pr-24"
+                      {...field}
+                    />
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      className="absolute right-2 top-2"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        const textarea = e.currentTarget.parentElement?.querySelector('textarea')
+                        if (textarea) {
+                          const start = textarea.selectionStart
+                          const end = textarea.selectionEnd
+                          const value = textarea.value
+                          const newValue = value.substring(0, start) + "{{ input.value }}" + value.substring(end)
+                          field.onChange(newValue)
+                          // Set cursor position after the inserted text
+                          setTimeout(() => {
+                            textarea.focus()
+                            const newPosition = start + "{{ input.value }}".length
+                            textarea.setSelectionRange(newPosition, newPosition)
+                          }, 0)
+                        }
+                      }}
+                    >
+                      Add Input
+                    </Button>
+                  </div>
+                </FormControl>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <span>Available Variables:</span>
+                  <code className="rounded bg-muted px-1 py-0.5">{"{{ input.value }}"}</code>
+                </div>
+              </div>
               <FormDescription>
-                Be specific about what you want to generate
+                Be specific about what you want to generate. Use the "Add Input" button to include the user's input.
               </FormDescription>
               <FormMessage />
             </FormItem>

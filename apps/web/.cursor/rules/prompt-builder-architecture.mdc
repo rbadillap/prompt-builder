@@ -1,0 +1,25 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Prompt Builder
+
+We’re building a **Prompt Builder**, designed as a **Workflow Builder**.
+
+## Workflow Actions  
+Think of **Actions** as independent tasks the user wants to delegate to the LLM.  
+Each action is powered by a specific prompt and can be customized through a configuration dialog (e.g., image generation settings).
+More information: [nav-actions.tsx](mdc:components/nav-actions.tsx), and [image-generation-dialog.tsx](mdc:components/dialogs/image-generation-dialog.tsx)
+
+## User Inputs (optional)  
+Think of **User Inputs** as pieces of information the workflow may need from the end user to run properly. These are defined through dialogs and attached to actions as needed.
+More information: [user-input-dialog.tsx](mdc:components/dialogs/user-input-dialog.tsx) and [user-input-action-dialog.tsx](mdc:components/dialogs/user-input-action-dialog.tsx).
+
+## Workflow Store
+We use zustand for store management. 
+More info: [input-store.ts](mdc:store/input-store.ts), and [workflow-store.ts](mdc:store/workflow-store.ts), 
+
+# Workflow API Chat
+Consider the API Chat as the direct logic to communicate with the LLM via ai-sdk. This is the place also to process the template and generate a final prompt.
+More info: [route.ts](mdc:app/api/chat/route.ts)
