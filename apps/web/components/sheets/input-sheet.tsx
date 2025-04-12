@@ -27,6 +27,7 @@ interface InputSheetProps {
 
 export function InputSheet({ open, onOpenChange, onSubmit }: InputSheetProps) {
   const config = useInputStore((state) => state.config)
+  const setValue = useInputStore((state) => state.setValue)
   const {
     register,
     handleSubmit,
@@ -34,10 +35,12 @@ export function InputSheet({ open, onOpenChange, onSubmit }: InputSheetProps) {
   } = useForm<FormValues>()
 
   const handleFormSubmit = (data: FormValues) => {
+    setValue(data.input)
     onSubmit(data)
   }
 
   const handleContinue = () => {
+    setValue("")
     onSubmit()
   }
 

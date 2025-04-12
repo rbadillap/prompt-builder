@@ -21,6 +21,17 @@ interface WorkflowSheetProps {
   onOpenChange: (open: boolean) => void
 }
 
+function processTemplateVariables(template: string, inputs: ExecutionResult[]): string {
+  let processedTemplate = template
+
+  if (inputs.length > 0 && inputs[0]?.value !== undefined) {
+    const inputValue = inputs[0].value
+    processedTemplate = processedTemplate.replace(/\{\{\s*input\.value\s*\}\}/g, inputValue)
+  }
+
+  return processedTemplate
+}
+
 function ResultSkeleton({ type }: { type: PrimitiveNodeType }) {
   switch (type) {
     case "text":
@@ -130,7 +141,7 @@ function ResultContent({
 }
 
 export function WorkflowSheet({ open, onOpenChange }: WorkflowSheetProps) {
-  const { nodes, nodeConfigs, setNodeResult, error, setError } = useWorkflowStore()
+  const { nodes, nodeConfigs, setNodeResult, error, setError, getNodeInputs } = useWorkflowStore()
   const { messages, data, append, setMessages, isLoading } = useChat()
   const [currentNodeId, setCurrentNodeId] = React.useState<string | null>(null)
   const hasNodes = nodes.length > 0
@@ -144,9 +155,13 @@ export function WorkflowSheet({ open, onOpenChange }: WorkflowSheetProps) {
         throw new Error('No prompt configured for node')
       }
 
+      // Get input values from connected nodes and process template
+      const inputs = getNodeInputs(node.id)
+      const processedPrompt = processTemplateVariables(config.prompt, inputs)
+
       const response = await append({
         role: 'user',
-        content: config.prompt,
+        content: processedPrompt,
       })
 
       const result: ExecutionResult = {
@@ -161,7 +176,7 @@ export function WorkflowSheet({ open, onOpenChange }: WorkflowSheetProps) {
       setError(error instanceof Error ? error.message : 'Unknown error occurred')
       return false
     }
-  }, [nodeConfigs, setNodeResult, setError, append])
+  }, [nodeConfigs, setNodeResult, setError, append, getNodeInputs])
 
   React.useEffect(() => {
     if (open && hasNodes) {

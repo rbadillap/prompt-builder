@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { type NodeData, type FlowNode } from '@/types/builder'
 import { type DialogFormData } from '@/types/dialogs'
 import { type PrimitiveNodeType } from '@/types/actions'
+import { useInputStore } from './input-store'
 
 // Define connection type for workflow
 interface Connection {
@@ -124,8 +125,19 @@ export const useWorkflowStore = create<WorkflowStore>((set, get) => ({
     }),
 
   // Helper function to get input values for a node
-  getNodeInputs: (nodeId) => {
+  getNodeInputs: (nodeId: string) => {
     const state = get()
+    const inputValue = useInputStore.getState().value
+
+    // If this is the first node and we have an input value, use it
+    if (state.nodes[0]?.id === nodeId && inputValue) {
+      return [{
+        type: 'text' as PrimitiveNodeType,
+        value: inputValue
+      }]
+    }
+
+    // Otherwise get inputs from connected nodes
     const incomingConnections = state.connections.filter(
       conn => conn.targetNodeId === nodeId
     )

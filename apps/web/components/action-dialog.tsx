@@ -50,6 +50,7 @@ export function ActionDialog({ action, trigger, children }: ActionDialogProps) {
       const nodeId = `node-${Date.now()}`
 
       // Create the node data
+      console.log('🔍 formData:', formData)
       const nodeData = {
         type: action.type,
         label: action.title,
