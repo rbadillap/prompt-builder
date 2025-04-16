@@ -8,6 +8,12 @@ import {
   SheetFooter,
 } from "@workspace/ui/components/sheet"
 import { Button } from "@workspace/ui/components/button"
+import { useWorkflowStore } from "@/store/workflow-store"
+import { useInputStore } from "@/store/input-store"
+import { Download, Loader2 } from "lucide-react"
+import { generateDeploymentFiles } from "@/lib/deployment-generator"
+import { cn } from "@workspace/ui/lib/utils"
+import JSZip from "jszip"
 
 interface DeploySheetProps {
   open: boolean
@@ -15,46 +21,107 @@ interface DeploySheetProps {
 }
 
 export function DeploySheet({ open, onOpenChange }: DeploySheetProps) {
+  const [isGenerating, setIsGenerating] = React.useState(false)
+  const { nodes, nodeConfigs } = useWorkflowStore()
+  const { config: inputConfig } = useInputStore()
+
+  const handleGenerate = async () => {
+    try {
+      setIsGenerating(true)
+      
+      const deploymentConfig = {
+        nodes,
+        nodeConfigs,
+        inputConfig,
+      }
+
+      const files = await generateDeploymentFiles(deploymentConfig)
+      
+      // Create a zip file with the generated files
+      const zip = new JSZip()
+      
+      // Add files to zip
+      Object.entries(files).forEach(([path, content]) => {
+        zip.file(path, content)
+      })
+      
+      // Generate zip and create download
+      const blob = await zip.generateAsync({ 
+        type: "blob",
+        compression: "DEFLATE",
+        compressionOptions: {
+          level: 9
+        }
+      })
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'workflow-deployment.zip'
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    } catch (error) {
+      console.error('Error generating deployment files:', error)
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-[500px]">
         <div className="space-y-6 px-2">
           <SheetHeader>
-            <SheetTitle>Deploy to Vercel</SheetTitle>
+            <SheetTitle>Generate Deployment</SheetTitle>
             <SheetDescription>
-              Deploy your workflow as a standalone application
+              Generate a deployable version of your workflow
             </SheetDescription>
           </SheetHeader>
 
           <div className="space-y-4">
             <div className="rounded-lg bg-muted/50 p-4">
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Your workflow will be deployed as a full-featured web application on Vercel's platform. 
-                This includes:
+                This will generate a complete Next.js application with:
               </p>
               <ul className="mt-2 space-y-2 text-sm text-muted-foreground list-disc list-inside">
-                <li>A modern web interface for your workflow</li>
-                <li>Serverless API endpoints for each node</li>
-                <li>Automatic scaling and global CDN distribution</li>
-                <li>Real-time execution and monitoring</li>
+                <li>React Server Components for optimal performance</li>
+                <li>API routes for workflow execution</li>
+                <li>Pre-configured workflow state</li>
+                <li>Ready to deploy UI components</li>
               </ul>
-            </div>
-
-            <div className="flex justify-center">
-              <a href="https://vercel.com/new/clone" target="_blank" rel="noopener noreferrer">
-                <img src="https://vercel.com/button" alt="Deploy with Vercel" />
-              </a>
             </div>
           </div>
 
-          <SheetFooter>
+          <SheetFooter className="flex sm:justify-between">
             <Button 
               type="button" 
               variant="secondary" 
               onClick={() => onOpenChange(false)}
-              className="w-full sm:w-auto"
             >
-              Close
+              Cancel
+            </Button>
+            <Button
+              onClick={handleGenerate}
+              disabled={isGenerating}
+              className={cn(
+                "gap-2",
+                isGenerating && "cursor-not-allowed opacity-60"
+              )}
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Download className="h-4 w-4" />
+                  Generate Files
+                </>
+              )}
             </Button>
           </SheetFooter>
         </div>
