@@ -32,6 +32,7 @@ import {
   ArrowRight,
   ArrowRightFromLine,
   ChevronRight,
+  Lock,
 } from "lucide-react"
 
 import { NavUser } from "@/components/nav-user"
@@ -383,17 +384,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarContent>
           <SidebarGroup className="px-0">
             <SidebarGroupContent>
-              {actions.map((action) => (
+              {actions.map((action, index) => (
                 <ActionDialog key={action.id} action={action}>
                   <a
                     href="#"
-                    className="group relative flex flex-col items-start gap-2.5 border-b p-4 text-sm transition-colors duration-150 last:border-b-0 hover:bg-muted/40"
+                    className={`group relative flex flex-col items-start gap-2.5 border-b p-4 text-sm transition-colors duration-150 last:border-b-0 hover:bg-muted/40 ${index >= 3 ? 'opacity-50' : ''}`}
                   >
                     <div className="flex w-full items-center gap-3">
                       <div className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors group-hover:text-foreground">
                         <action.icon className="size-4" />
                       </div>
                       <span className="font-medium tracking-tight">{action.title}</span>
+                      {index >= 3 && (
+                        <Lock className="size-3.5 ml-auto text-muted-foreground" />
+                      )}
                     </div>
                     <span className="line-clamp-2 w-[260px] whitespace-break-spaces text-xs text-muted-foreground">
                       {action.description}
