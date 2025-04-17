@@ -25,6 +25,7 @@ import {
   Bot,
   MessageSquarePlus,
   Play,
+  Rocket,
 } from "lucide-react"
 
 import { Button } from "@workspace/ui/components/button"
@@ -44,8 +45,9 @@ import {
 } from "@workspace/ui/components/sidebar"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@workspace/ui/components/tooltip"
 import { TooltipProvider } from "@workspace/ui/components/tooltip"
-import { InputSheet } from "./sheets/input-sheet"
-import { WorkflowSheet } from "./sheets/workflow-sheet"
+import { InputSheet } from "@/components/sheets/input-sheet"
+import { WorkflowSheet } from "@/components/sheets/workflow-sheet"
+import { DeploySheet } from "@/components/sheets/deploy-sheet"
 import { useWorkflowStore } from "@/store/workflow-store"
 
 const data = [
@@ -107,26 +109,62 @@ const data = [
   ],
 ]
 
+
+export function OpenInV0Button({ url }: { url: string }) {
+  return (
+    <svg
+    viewBox="0 0 40 20"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-5 w-5 text-current"
+    >
+      <path
+        d="M23.3919 0H32.9188C36.7819 0 39.9136 3.13165 39.9136 6.99475V16.0805H36.0006V6.99475C36.0006 6.90167 35.9969 6.80925 35.9898 6.71766L26.4628 16.079C26.4949 16.08 26.5272 16.0805 26.5595 16.0805H36.0006V19.7762H26.5595C22.6964 19.7762 19.4788 16.6139 19.4788 12.7508V3.68923H23.3919V12.7508C23.3919 12.9253 23.4054 13.0977 23.4316 13.2668L33.1682 3.6995C33.0861 3.6927 33.003 3.68923 32.9188 3.68923H23.3919V0Z"
+        fill="currentColor"
+      ></path>
+      <path
+        d="M13.7688 19.0956L0 3.68759H5.53933L13.6231 12.7337V3.68759H17.7535V17.5746C17.7535 19.6705 15.1654 20.6584 13.7688 19.0956Z"
+        fill="currentColor"
+      ></path>
+    </svg>
+  )
+}
+
 export function NavActions() {
   const [isOpen, setIsOpen] = React.useState(false)
   const [isInputSheetOpen, setIsInputSheetOpen] = React.useState(false)
   const [isWorkflowSheetOpen, setIsWorkflowSheetOpen] = React.useState(false)
+  const [isDeploySheetOpen, setIsDeploySheetOpen] = React.useState(false)
+  const [inputMode, setInputMode] = React.useState<'workflow' | 'deploy'>('workflow')
   const { setExecuting, setCurrentNode } = useWorkflowStore()
 
   const handleWorkflowStart = () => {
     setIsInputSheetOpen(false)
     setIsWorkflowSheetOpen(true)
     setExecuting(true)
-    // Start with the first node
-    // You might want to adjust this logic based on your workflow structure
-    setCurrentNode(null) // Reset current node
+    setCurrentNode(null)
+  }
+
+  const handleDeployStart = () => {
+    setIsInputSheetOpen(false)
+    setIsDeploySheetOpen(true)
+  }
+
+  const handleInputSubmit = () => {
+    if (inputMode === 'workflow') {
+      handleWorkflowStart()
+    } else {
+      handleDeployStart()
+    }
+  }
+
+  const openInputSheet = (mode: 'workflow' | 'deploy') => {
+    setInputMode(mode)
+    setIsInputSheetOpen(true)
   }
 
   return (
     <div className="flex items-center gap-2 text-sm">
-      <div className="hidden font-medium text-muted-foreground md:inline-block">
-        Last edited 10 Apr
-      </div>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -134,7 +172,7 @@ export function NavActions() {
               variant="ghost" 
               size="icon" 
               className="h-7 w-7"
-              onClick={() => setIsInputSheetOpen(true)}
+              onClick={() => openInputSheet('workflow')}
             >
               <Play className="h-4 w-4" />
             </Button>
@@ -146,11 +184,26 @@ export function NavActions() {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button variant="ghost" size="icon" className="h-7 w-7">
-              <Star />
+              <OpenInV0Button url="https://v0.dev/chat/123" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Star</p>
+            <p>Open in v0</p>
+          </TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-7 w-7"
+              onClick={() => openInputSheet('deploy')}
+            >
+              <Rocket className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Deploy to Vercel</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -193,11 +246,15 @@ export function NavActions() {
       <InputSheet 
         open={isInputSheetOpen} 
         onOpenChange={setIsInputSheetOpen}
-        onSubmit={handleWorkflowStart}
+        onSubmit={handleInputSubmit}
       />
       <WorkflowSheet 
         open={isWorkflowSheetOpen} 
         onOpenChange={setIsWorkflowSheetOpen}
+      />
+      <DeploySheet
+        open={isDeploySheetOpen}
+        onOpenChange={setIsDeploySheetOpen}
       />
     </div>
   )
