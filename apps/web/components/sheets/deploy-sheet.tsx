@@ -10,10 +10,11 @@ import {
 import { Button } from "@workspace/ui/components/button"
 import { useWorkflowStore } from "@/store/workflow-store"
 import { useInputStore } from "@/store/input-store"
-import { Download, Loader2 } from "lucide-react"
-import { generateDeploymentFiles } from "@/lib/deployment-generator"
+import { Rocket, Loader2 } from "lucide-react"
+import { generateDeploymentFiles, type DeploymentConfig } from "@/lib/deployment-generator"
 import { cn } from "@workspace/ui/lib/utils"
 import JSZip from "jszip"
+import { toast } from "sonner"
 
 interface DeploySheetProps {
   open: boolean
@@ -21,18 +22,18 @@ interface DeploySheetProps {
 }
 
 export function DeploySheet({ open, onOpenChange }: DeploySheetProps) {
-  const [isGenerating, setIsGenerating] = React.useState(false)
+  const [isDeploying, setIsDeploying] = React.useState(false)
   const { nodes, nodeConfigs } = useWorkflowStore()
   const { config: inputConfig } = useInputStore()
 
-  const handleGenerate = async () => {
+  const handleDeploy = async () => {
     try {
-      setIsGenerating(true)
+      setIsDeploying(true)
       
-      const deploymentConfig = {
+      const deploymentConfig: DeploymentConfig = {
         nodes,
         nodeConfigs,
-        inputConfig,
+        inputConfig: inputConfig ?? undefined,
       }
 
       const files = await generateDeploymentFiles(deploymentConfig)
@@ -45,7 +46,7 @@ export function DeploySheet({ open, onOpenChange }: DeploySheetProps) {
         zip.file(path, content)
       })
       
-      // Generate zip and create download
+      // Generate zip blob
       const blob = await zip.generateAsync({ 
         type: "blob",
         compression: "DEFLATE",
@@ -53,20 +54,53 @@ export function DeploySheet({ open, onOpenChange }: DeploySheetProps) {
           level: 9
         }
       })
+
+      // Create FormData with the zip file
+      const formData = new FormData()
+      formData.append('file', new File([blob], 'workflow-deployment.tgz', { type: 'application/gzip' }))
       
-      // Create download link
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = 'workflow-deployment.zip'
-      document.body.appendChild(a)
-      a.click()
-      window.URL.revokeObjectURL(url)
-      document.body.removeChild(a)
+      // Send to our API endpoint
+      const response = await fetch('/api/deploy', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.ok) {
+        throw new Error('Deployment failed')
+      }
+
+      const data = await response.json()
+      
+      // Show success message with deployment URL and status
+      toast.success("Deployment Initiated", {
+        description: (
+          <div className="flex flex-col gap-2">
+            <p>Your workflow deployment has been queued successfully!</p>
+            <div className="flex flex-col text-sm text-muted-foreground">
+              <p>Status: {data.deployment.status}</p>
+              <p>Project: {data.deployment.project.name}</p>
+            </div>
+            <a 
+              href={data.deployment.inspectorUrl}
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              View Deployment Status →
+            </a>
+          </div>
+        ),
+      })
+
+      // Close the sheet
+      onOpenChange(false)
     } catch (error) {
-      console.error('Error generating deployment files:', error)
+      console.error('Deployment error:', error)
+      toast.error("Deployment Failed", {
+        description: "There was an error deploying your workflow. Please try again.",
+      })
     } finally {
-      setIsGenerating(false)
+      setIsDeploying(false)
     }
   }
 
@@ -75,22 +109,22 @@ export function DeploySheet({ open, onOpenChange }: DeploySheetProps) {
       <SheetContent className="sm:max-w-[500px]">
         <div className="space-y-6 px-2">
           <SheetHeader>
-            <SheetTitle>Generate Deployment</SheetTitle>
+            <SheetTitle>Deploy to Vercel</SheetTitle>
             <SheetDescription>
-              Generate a deployable version of your workflow
+              Deploy your workflow as a standalone application
             </SheetDescription>
           </SheetHeader>
 
           <div className="space-y-4">
             <div className="rounded-lg bg-muted/50 p-4">
               <p className="text-sm text-muted-foreground leading-relaxed">
-                This will generate a complete Next.js application with:
+                Your workflow will be deployed as a full-featured Next.js application with:
               </p>
               <ul className="mt-2 space-y-2 text-sm text-muted-foreground list-disc list-inside">
                 <li>React Server Components for optimal performance</li>
                 <li>API routes for workflow execution</li>
                 <li>Pre-configured workflow state</li>
-                <li>Ready to deploy UI components</li>
+                <li>Automatic scaling and global CDN distribution</li>
               </ul>
             </div>
           </div>
@@ -104,22 +138,22 @@ export function DeploySheet({ open, onOpenChange }: DeploySheetProps) {
               Cancel
             </Button>
             <Button
-              onClick={handleGenerate}
-              disabled={isGenerating}
+              onClick={handleDeploy}
+              disabled={isDeploying}
               className={cn(
                 "gap-2",
-                isGenerating && "cursor-not-allowed opacity-60"
+                isDeploying && "cursor-not-allowed opacity-60"
               )}
             >
-              {isGenerating ? (
+              {isDeploying ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Generating...
+                  Deploying...
                 </>
               ) : (
                 <>
-                  <Download className="h-4 w-4" />
-                  Generate Files
+                  <Rocket className="h-4 w-4" />
+                  Deploy to Vercel
                 </>
               )}
             </Button>

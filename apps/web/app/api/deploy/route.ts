@@ -1,108 +1,99 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { promises as fs } from "node:fs";
-import path from "node:path";
 import crypto from "node:crypto";
-import { VERCEL_API_URL } from "@/app/utils/constants";
 
-const token = process.env.ACCESS_TOKEN;
-const teamId = process.env.TEAM_ID;
+const VERCEL_API_URL = "https://api.vercel.com";
+const token = process.env.VERCEL_ACCESS_TOKEN;
+const teamId = process.env.VERCEL_TEAM_ID;
 
 if (!token) {
-  throw new Error("ACCESS_TOKEN is required");
+  throw new Error("VERCEL_ACCESS_TOKEN is required");
 }
 
 if (!teamId) {
-  throw new Error("TEAM_ID is required");
+  throw new Error("VERCEL_TEAM_ID is required");
 }
 
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
-    const templateKey = formData.get("template") as string;
     const file = formData.get("file") as File;
 
-    let localFileBuffer: Buffer | undefined;
-    let localFileSha: string | undefined;
-    let fileSha: string | undefined;
-
-    if (templateKey) {
-      const templateFilePath = path.join(
-        process.cwd(),
-        "templates",
-        `${templateKey}.tgz`
+    if (!file) {
+      return NextResponse.json(
+        { error: "No file provided" },
+        { status: 400 }
       );
-      try {
-        localFileBuffer = await fs.readFile(templateFilePath);
-        localFileSha = crypto
-          .createHash("sha1")
-          .update(localFileBuffer)
-          .digest("hex");
-      } catch (err) {
-        console.error(`Error reading template file: ${(err as Error).message}`);
-        return NextResponse.json(
-          { error: `Template file '${templateKey}' not found` },
-          { status: 400 }
-        );
-      }
-    } else {
-      const fileArrayBuffer = await file.arrayBuffer();
-      const fileBuffer = Buffer.from(fileArrayBuffer);
-      fileSha = crypto.createHash("sha1").update(fileBuffer).digest("hex");
     }
 
+    // Convert File to Buffer and calculate SHA
+    const fileArrayBuffer = await file.arrayBuffer();
+    const fileBuffer = Buffer.from(fileArrayBuffer);
+    const fileSha = crypto.createHash("sha1").update(fileBuffer).digest("hex");
+
+    // Upload the file to Vercel
     const uploadResponse = await fetch(
       `${VERCEL_API_URL}/v2/files?teamId=${teamId}`,
       {
         method: "POST",
-        body: localFileBuffer || file,
+        body: file,
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/octet-stream",
-          "x-vercel-digest": (localFileSha || fileSha) as string,
+          "x-vercel-digest": fileSha,
         },
       }
     );
 
     if (!uploadResponse.ok) {
+      console.error('Upload failed:', await uploadResponse.text());
       return NextResponse.json(
         { error: "Failed to upload file" },
         { status: 500 }
       );
     }
 
+    // Create the deployment
     const deploymentResponse = await fetch(
       `${VERCEL_API_URL}/v12/now/deployments?teamId=${teamId}`,
       {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           files: [
             {
               file: ".vercel/source.tgz",
-              sha: localFileSha || fileSha,
+              sha: fileSha,
             },
           ],
           projectSettings: {
-            framework: templateKey || "nextjs",
+            framework: "nextjs",
+            buildCommand: "pnpm build",
+            installCommand: "pnpm install",
+            outputDirectory: ".next",
+            nodeVersion: "20.x",
           },
-          name: `temp-project-${generateRandomId(10)}`,
+          name: `workflow-${generateRandomId(8)}`,
+          env: {
+            OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+          },
         }),
       }
     );
 
     if (!deploymentResponse.ok) {
+      console.error('Deployment failed:', await deploymentResponse.text());
       return NextResponse.json(
         { error: "Failed to create deployment" },
         { status: 500 }
       );
     }
 
-    return NextResponse.json(
-      { deployment: await deploymentResponse.json() },
-      { status: 200 }
-    );
+    const deployment = await deploymentResponse.json();
+
+    return NextResponse.json({ deployment }, { status: 200 });
   } catch (error) {
     console.error("Deployment error:", error);
     return NextResponse.json(

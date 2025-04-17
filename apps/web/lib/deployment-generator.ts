@@ -1,10 +1,9 @@
-import type { Node, NodeConfig } from "@/types/actions"
-import type { InputConfig } from "@/types/input"
+import { FlowNode } from "@/types/builder"
 
-interface DeploymentConfig {
-  nodes: Node[]
-  nodeConfigs: Record<string, NodeConfig>
-  inputConfig?: InputConfig
+export interface DeploymentConfig {
+  nodes: FlowNode[]
+  nodeConfigs: Record<string, { prompt: string }>
+  inputConfig?: { placeholder: string }
 }
 
 interface GeneratedFiles {
@@ -14,6 +13,8 @@ interface GeneratedFiles {
   'lib/store.ts': string
 }
 
+// TODO: Better way to handle this after hackathon
+// maybe shadcn registry can be used to generate the files
 export async function generateDeploymentFiles(config: DeploymentConfig): Promise<GeneratedFiles> {
   const { nodes, nodeConfigs, inputConfig } = config
   
