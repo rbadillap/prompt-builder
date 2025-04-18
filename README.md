@@ -65,7 +65,7 @@ Here are some common workflows you can build:
 
 Deploy your own Prompt Builder instance with a single click:
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/prompt-builder)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/rbadillap/prompt-builder)
 
 ## Built With
 
