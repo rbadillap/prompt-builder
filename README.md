@@ -1,5 +1,8 @@
 # Prompt Builder
 
+> [!NOTE]  
+> **Prompt Builder** is a demo project built for the [Next.js Hackathon 2025](https://next-hackathon-2025.vercel.app/). It is not an official Vercel product—just a tribute to how smooth AI workflows *could* be.
+
 <div align="center">
   <h3>Build AI Workflows, Without the Complexity</h3>
   <p>A visual workflow builder for AI interactions, powered by Vercel.</p>
