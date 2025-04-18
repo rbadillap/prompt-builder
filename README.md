@@ -1,31 +1,79 @@
-# shadcn/ui monorepo template
+# Prompt Builder
 
-This template is for creating a monorepo with shadcn/ui.
+<div align="center">
+  <h3>Build AI Workflows, Without the Complexity</h3>
+  <p>A visual workflow builder for AI interactions, powered by Vercel.</p>
+</div>
 
-## Usage
+<div align="center">
+  <a href="#features">Features</a> •
+  <a href="#getting-started">Getting Started</a> •
+  <a href="#examples">Examples</a> •
+  <a href="#deploy">Deploy</a>
+</div>
+
+<div align="center">
+  <img src="/screenshot.png" alt="prompt builder screenshot" />
+</div>
+
+## Overview
+
+Prompt Builder is a powerful visual interface that simplifies AI interactions. Build complex AI workflows without writing code, perfect for both beginners and experts in AI development.
+
+## Features
+
+### 🎯 Visual Workflow Builder
+- Design AI workflows through an intuitive drag-and-drop interface
+- Connect multiple AI actions seamlessly
+- Preview your workflow in real-time
+
+### 🔧 Customizable Actions
+- Pre-built actions for common AI tasks
+- Configurable settings for each action
+- Extensible architecture for custom actions
+
+### 📝 Dynamic User Inputs
+- Add custom input fields to your workflows
+- Validate and transform user data
+- Connect user inputs to any action in your workflow
+
+### 🚀 Enterprise-Ready
+- Built on Vercel's infrastructure
+- Production-grade performance
+- Secure by default
+
+## Getting Started
 
 ```bash
-pnpm dlx shadcn@latest init
+# Install dependencies
+pnpm install
+
+# Run the development server
+pnpm dev
 ```
 
-## Adding components
+## Examples
 
-To add components to your app, run the following command at the root of your `web` app:
+Here are some common workflows you can build:
 
-```bash
-pnpm dlx shadcn@latest add button -c apps/web
-```
+- Content Generation Pipeline
+- Image Generation Workflow
+- Data Analysis Sequence
+- Custom Chat Interactions
 
-This will place the ui components in the `packages/ui/src/components` directory.
+## Deploy
 
-## Tailwind
+Deploy your own Prompt Builder instance with a single click:
 
-Your `tailwind.config.ts` and `globals.css` are already set up to use the components from the `ui` package.
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/rbadillap/prompt-builder)
 
-## Using components
+## Built With
 
-To use the components in your app, import them from the `ui` package.
+- [Next.js](https://nextjs.org/) - The React Framework
+- [shadcn/ui](https://ui.shadcn.com/) - UI Components
+- [Vercel AI SDK](https://sdk.vercel.ai/) - AI Interactions
+- [Zustand](https://zustand-demo.pmnd.rs/) - State Management
 
-```tsx
-import { Button } from "@workspace/ui/components/button"
-```
+## License
+
+Licensed under the [MIT license](https://github.com/yourusername/prompt-builder/blob/main/LICENSE).
